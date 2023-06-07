@@ -1,0 +1,4 @@
+.vscode
+lib/*
+build
+!placeholder
