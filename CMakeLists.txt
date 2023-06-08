@@ -6,7 +6,9 @@ enable_testing()
 
 # Set executable output directory
 set(MAIN_CPP ${CMAKE_SOURCE_DIR}/src)
-add_executable(${PROJECT_NAME} ${MAIN_CPP})
+file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
+list(REMOVE_ITEM SOURCE ${REMOVE_CMAKE})
+add_executable(${PROJECT_NAME} ${SOURCE})
 
 # Setup root directories
 set(SDL2_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2/x86_64-w64-mingw32)
@@ -14,11 +16,11 @@ set(SDL2_IMAGE_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2_image/x86_64-w64-mingw32)
 set(SDL2_TTF_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2_ttf/x86_64-w64-mingw32)
 set(JSON_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/json-develop)
 set(OPEN_SSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/openssl-1.1.1u)
-set(AATMS_ROOT_DIR ${CMAKE_SOURCE_DIR})
+
 
 # Setup include directories
 include_directories(
-    ${AATMS_ROOT_DIR}/include
+    ${CMAKE_SOURCE_DIR}/src
     ${SDL2_ROOT_DIR}/include/SDL2
     ${SDL2_IMAGE_ROOT_DIR}/include/SDL2
     ${SDL2_TTF_ROOT_DIR}/include/SDL2
