@@ -9,4 +9,4 @@ AATMS
 </h1>
 </div>
 
-Advanced Automatic Tellering Machine System
+Advanced Automated Teller Machine System
