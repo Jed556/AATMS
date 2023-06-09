@@ -3,17 +3,16 @@
         {
             "name": "windows-gcc-x64",
             "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
+            // "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
             "cStandard": "${default}",
             "cppStandard": "${default}",
             "intelliSenseMode": "windows-gcc-x64",
             "compilerArgs": [
                 ""
             ],
-            "configurationProvider": "ms-vscode.cpptools",
+            "configurationProvider": "ms-vscode.cmake-tools",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/include",
-                "${workspaceFolder}/lib"
+                "${workspaceFolder}/**"
             ]
         }
     ],

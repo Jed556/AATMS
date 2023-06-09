@@ -99,4 +99,5 @@
     "*.inc": "cpp"
   },
   "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0, AllowShortFunctionsOnASingleLine: None, ConstructorInitializerAllOnOneLineOrOnePerLine: true,    IndentCaseLabels: true }",
+  "cmake.configureOnOpen": true,
 }
