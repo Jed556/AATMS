@@ -1,5 +1,6 @@
 ################## HELLO WORLD ##################
 
+# Project configuration
 cmake_minimum_required(VERSION 3.0.0)
 set(CMAKE_TOOLCHAIN_FILE "../../Managers/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(AATMS
@@ -9,10 +10,14 @@ project(AATMS
     LANGUAGES CXX
 )
 
+# Testing
 include(CTest)
 enable_testing()
 
+# Setup directories
+set(FOLDER_NAME ${PROJECT_NAME}-${PROJECT_VERSION}-win64)
 set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/bin)
 
 
 ################## INCLUDE AND LINK ##################
@@ -37,7 +42,9 @@ target_link_libraries(${PROJECT_NAME}
     $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
 )
 
-configure_file(${CMAKE_SOURCE_DIR}/run.bat ${CMAKE_BINARY_DIR}/run.bat COPYONLY)
+# Copy resources to build directory
+file(COPY ${CMAKE_SOURCE_DIR}/res/ DESTINATION ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/res)
+file(COPY ${CMAKE_SOURCE_DIR}/database/ DESTINATION ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/database)
 
 # Set the language for the target
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
@@ -53,7 +60,6 @@ set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/package)
 include(CPack)
 
 # Package resources and libraries
-set(FOLDER_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-win64")
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/database/ DESTINATION ${FOLDER_NAME}/database )
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION ${FOLDER_NAME}/res )
 install(TARGETS ${PROJECT_NAME} DESTINATION ${FOLDER_NAME}/bin)
@@ -72,6 +78,4 @@ install(FILES
 add_custom_target(PackU
     COMMAND echo "Building the project"
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target package
-    COMMAND echo "Running the project"
-    COMMAND start cmd /c run.bat
 )

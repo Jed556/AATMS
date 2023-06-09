@@ -1,6 +1,3 @@
 lib/*
 build
-database
-res
 !placeholder
-!src/*
