@@ -1,0 +1,87 @@
+cmake_minimum_required(VERSION 3.0.0)
+set(CMAKE_TOOLCHAIN_FILE "../../Managers/vcpkg/scripts/buildsystems/vcpkg.cmake")
+project(AATMS VERSION 0.0.2)
+
+include(CTest)
+enable_testing()
+
+# Set executable output directory
+set(MAIN_CPP ${CMAKE_SOURCE_DIR}/src/main.cpp)
+file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
+list(REMOVE_ITEM SOURCE ${REMOVE_CMAKE})
+add_executable(${PROJECT_NAME} ${SOURCE})
+
+# Setup root directories
+set(LIB_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(SDL2_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2/x86_64-w64-mingw32)
+set(SDL2_IMAGE_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2_image/x86_64-w64-mingw32)
+set(SDL2_TTF_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2_ttf/x86_64-w64-mingw32)
+# set(JSON_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/json-develop)
+set(SQLITE_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/sqlite-amalgamation)
+
+
+# Setup include directories
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src
+    ${SDL2_ROOT_DIR}/include/SDL2
+    ${SDL2_IMAGE_ROOT_DIR}/include/SDL2
+    ${SDL2_TTF_ROOT_DIR}/include/SDL2
+    ${JSON_ROOT_DIR}/include
+    ${SQLITE_ROOT_DIR}
+)
+
+add_library(sqlite3 STATIC ${SQLITE_ROOT_DIR}/sqlite3.c)
+target_include_directories(sqlite3 PUBLIC ${SQLITE_DIR})
+
+if(WIN32)
+    # Link against libraries
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        ${SDL2_ROOT_DIR}/lib/libSDL2.dll.a
+        ${SDL2_IMAGE_ROOT_DIR}/lib/libSDL2_image.dll.a
+        ${SDL2_TTF_ROOT_DIR}/lib/libSDL2_ttf.dll.a
+        sqlite3
+    )
+
+    target_sources(${PROJECT_NAME} PRIVATE ${MAIN_CPP})
+
+     # Set the bin folder as the DLL search path
+     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${CMAKE_BINARY_DIR}/bin")
+     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+ endif()
+
+ find_package(bsoncxx CONFIG REQUIRED)
+ target_link_libraries(${PROJECT_NAME} PRIVATE $<IF:$<TARGET_EXISTS:mongo::bsoncxx_static>,mongo::bsoncxx_static,mongo::bsoncxx_shared>)
+
+ find_package(mongocxx CONFIG REQUIRED)
+ target_link_libraries(${PROJECT_NAME} PRIVATE $<IF:$<TARGET_EXISTS:mongo::mongocxx_static>,mongo::mongocxx_static,mongo::mongocxx_shared>)
+
+# Set the language for the target
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+# Add CPack configuration
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_GENERATOR ZIP)
+set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/package)
+
+# Specify the files to be included in the package
+install(FILES
+    ${SDL2_ROOT_DIR}/bin/SDL2.dll
+    ${SDL2_IMAGE_ROOT_DIR}/bin/SDL2_image.dll
+    ${SDL2_TTF_ROOT_DIR}/bin/SDL2_ttf.dll
+    DESTINATION bin
+)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION res)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+
+# Include CPack module to enable packaging
+include(CPack)
+
+# Custom target for auto packing
+add_custom_target(PackU
+    COMMENT "Packaging the project"
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target package
+    # RUN THE EXECUTABLE
+    COMMENT "Running the executable"
+    COMMAND ${CMAKE_BINARY_DIR}/package/_CPack_Packages/win64/ZIP/${PROJECT_NAME}-${PROJECT_VERSION}-win64/bin/${PROJECT_NAME}.exe
+)

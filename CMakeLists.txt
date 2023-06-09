@@ -1,78 +1,77 @@
+################## HELLO WORLD ##################
+
 cmake_minimum_required(VERSION 3.0.0)
-project(AATMS VERSION 0.0.2)
+set(CMAKE_TOOLCHAIN_FILE "../../Managers/vcpkg/scripts/buildsystems/vcpkg.cmake")
+project(AATMS
+    VERSION 0.0.2
+    DESCRIPTION "Advanced Automated Teller Machine System"
+    HOMEPAGE_URL "https://github.com/Jed556/AATMS"
+    LANGUAGES CXX
+)
 
 include(CTest)
 enable_testing()
 
+set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+
+
+################## INCLUDE AND LINK ##################
+
 # Set executable output directory
-set(MAIN_CPP ${CMAKE_SOURCE_DIR}/src)
+set(MAIN_CPP ${CMAKE_SOURCE_DIR}/main.cpp)
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
 list(REMOVE_ITEM SOURCE ${REMOVE_CMAKE})
 add_executable(${PROJECT_NAME} ${SOURCE})
 
-# Setup root directories
-set(SDL2_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2/x86_64-w64-mingw32)
-set(SDL2_IMAGE_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2_image/x86_64-w64-mingw32)
-set(SDL2_TTF_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/SDL2_ttf/x86_64-w64-mingw32)
-set(JSON_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/json-develop)
-set(OPEN_SSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/lib/openssl-1.1.1u)
-
-
-# Setup include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src
-    ${SDL2_ROOT_DIR}/include/SDL2
-    ${SDL2_IMAGE_ROOT_DIR}/include/SDL2
-    ${SDL2_TTF_ROOT_DIR}/include/SDL2
-    # ${JSON_ROOT_DIR}/include
-    # ${OPEN_SSL_ROOT_DIR}/include
+# Link libraries
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_image CONFIG REQUIRED)
+find_package(SDL2_ttf CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    unofficial::sqlite3::sqlite3
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+    $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
 )
 
-if(WIN32)
-    # Link against libraries
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${SDL2_ROOT_DIR}/lib/libSDL2.dll.a
-        ${SDL2_IMAGE_ROOT_DIR}/lib/libSDL2_image.dll.a
-        ${SDL2_TTF_ROOT_DIR}/lib/libSDL2_ttf.dll.a
-    )
-
-    target_sources(${PROJECT_NAME} PRIVATE ${MAIN_CPP}/main.cpp)
-
-     # Set the bin folder as the DLL search path
-     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${CMAKE_BINARY_DIR}/bin")
-     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
- endif()
+configure_file(${CMAKE_SOURCE_DIR}/run.bat ${CMAKE_BINARY_DIR}/run.bat COPYONLY)
 
 # Set the language for the target
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-# Copy resource files to build directory
-file(COPY ${CMAKE_SOURCE_DIR}/res DESTINATION ${CMAKE_BINARY_DIR})
 
-# Add CPack configuration
-set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-set(CPACK_GENERATOR ZIP)
+################## PACKAGE ##################
+
+# Setup package
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-win64")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/package)
-
-# Specify the files to be included in the package
-install(FILES
-    ${SDL2_ROOT_DIR}/bin/SDL2.dll
-    ${SDL2_IMAGE_ROOT_DIR}/bin/SDL2_image.dll
-    ${SDL2_TTF_ROOT_DIR}/bin/SDL2_ttf.dll
-    DESTINATION bin
-)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION res)
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-
-# Include CPack module to enable packaging
 include(CPack)
 
-# Custom target for auto packing
+# Package resources and libraries
+set(FOLDER_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-win64")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/database/ DESTINATION ${FOLDER_NAME}/database )
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION ${FOLDER_NAME}/res )
+install(TARGETS ${PROJECT_NAME} DESTINATION ${FOLDER_NAME}/bin)
+install(FILES
+    $<TARGET_FILE:unofficial::sqlite3::sqlite3> 
+    $<TARGET_FILE:SDL2::SDL2>
+    $<TARGET_FILE:SDL2_ttf::SDL2_ttf>
+    $<TARGET_FILE:SDL2_image::SDL2_image>
+    DESTINATION ${FOLDER_NAME}/bin
+)
+
+
+################## CUSTOM TARGETS ##################
+
+# Custom target for auto packing and running
 add_custom_target(PackU
-    COMMENT "Packaging the project"
+    COMMAND echo "Building the project"
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target package
-    # RUN THE EXECUTABLE
-    COMMENT "Running the executable"
-    COMMAND ${CMAKE_BINARY_DIR}/package/_CPack_Packages/win64/ZIP/${PROJECT_NAME}-${PROJECT_VERSION}-win64/bin/${PROJECT_NAME}.exe
+    COMMAND echo "Running the project"
+    COMMAND start cmd /c run.bat
 )
