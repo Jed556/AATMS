@@ -1,6 +1,9 @@
-#include "system/AATMS.h"
+#include <iostream>
+#include <string>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
-int test(int argc, char const* argv[]) {
+int WinMain(int argc, char const* argv[]) {
     // sdl2 code that prints hello world in the center of the interface
 
     GUI GUI("AATMS", 640, 480);
