@@ -44,7 +44,7 @@ class Account {
         std::string last;
         std::string user;
     } name;
-    int cvc;
+    std::string cvc;
     std::string pin;
     struct Expiry {
         int month;
@@ -55,10 +55,10 @@ class Account {
         double savings;
     } balance;
     struct Date {
-        std::string created;
+        DateTime created;
         struct Last {
-            std::string login;
-            std::string logout;
+            DateTime login;
+            DateTime logout;
         } last;
     } date;
 
@@ -69,12 +69,12 @@ class Account {
        public:
         Set(const Account& account);
         void id(std::string id);
-        void name(std::string first, std::string middle, std::string last);
-        void cvc(int cvc);
+        void name(std::string first, std::string middle, std::string last, std::string user);
+        void cvc(std::string cvc);
         void pin(std::string pin);
         void expiry(int month, int year);
         void balance(double loan, double savings);
-        void date(std::string created, std::string login, std::string logout);
+        void date(DateTime created, DateTime login, DateTime logout);
     };
     class Get {
        private:
@@ -84,11 +84,11 @@ class Account {
         Get(const Account& account);
         std::string id();
         std::string name(std::string which);
-        int cvc();
+        std::string cvc();
         std::string pin();
         std::vector<int> expiry();
         double balance();
-        std::string date();
+        std::array<DateTime, 3> date();
     };
 
    public:
