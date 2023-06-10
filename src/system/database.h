@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 
 #include "generator.h"
 #include "database/handler.h"
