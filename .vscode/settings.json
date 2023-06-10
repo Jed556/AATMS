@@ -104,4 +104,12 @@
   },
   "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0, AllowShortFunctionsOnASingleLine: None, ConstructorInitializerAllOnOneLineOrOnePerLine: true,    IndentCaseLabels: true }",
   "cmake.configureOnOpen": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:AATMS}/build/AATMS-0.0.2-win64/database/database.db",
+      "name": "testing"
+    }
+  ],
 }
