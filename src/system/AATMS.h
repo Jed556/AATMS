@@ -2,7 +2,7 @@
 #define AATMS_H
 
 #include "database.h"
-#include "generator.h"
+#include "handler.h"
 #include "interface.h"
 #include "loan.h"
 
