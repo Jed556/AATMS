@@ -1,7 +1,7 @@
 #include "../generator.h"
 
 // Function to generate a random 16-character account ID
-std::string Generator::accountID() {
+std::string Generator::id() {
     const std::string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const int length = 16;
     std::string accountID;
@@ -12,19 +12,22 @@ std::string Generator::accountID() {
     return accountID;
 }
 
-// Function to generate a random expiration month (01-12)
-std::string Generator::expirationMonth() {
-    int randomMonth = rand() % 12 + 1;
-    return (randomMonth < 10) ? "0" + std::to_string(randomMonth) : std::to_string(randomMonth);
+/**
+ * @brief Generate expiry year
+ *
+ * @return int Expiry year
+ */
+int Generator::expiryYear() {
+    int year = getDate().year;
+    int expiry = year + 4;
+    return expiry;
 }
 
-// Function to generate a random expiration year (2023-2033)
-std::string Generator::expirationYear() {
-    int randomYear = rand() % 11 + 2023;
-    return std::to_string(randomYear);
-}
-
-// Function to generate a random 3-character CVC
+/**
+ * @brief Generate random cvc
+ *
+ * @return std::string CVC
+ */
 std::string Generator::cvc() {
     const std::string chars = "0123456789";
     const int length = 3;
