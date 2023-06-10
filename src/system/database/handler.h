@@ -13,7 +13,7 @@ class Handler {
 
        public:
         HandAccount(const Handler& handler);
-        void create(Account& account);
+        void create(Account& account, Name name, std::string pin);
         void edit();
         void get();
     };
