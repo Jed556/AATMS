@@ -96,7 +96,11 @@
     "span": "cpp",
     "valarray": "cpp",
     "variant": "cpp",
-    "*.inc": "cpp"
+    "*.inc": "cpp",
+    "charconv": "cpp",
+    "chrono": "cpp",
+    "format": "cpp",
+    "fstream": "cpp"
   },
   "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0, AllowShortFunctionsOnASingleLine: None, ConstructorInitializerAllOnOneLineOrOnePerLine: true,    IndentCaseLabels: true }",
   "cmake.configureOnOpen": true,
