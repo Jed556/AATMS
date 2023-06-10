@@ -1,4 +1,4 @@
-#include "sql.h"
+#include "../database.h"
 
 Database::Database(std::string path) {
     this->path = path;
@@ -40,6 +40,7 @@ int Database::openDB() {
         sqlite3_close(db);
         return 1;
     }
+    return 0;
 }
 
 void Database::closeDB() {
@@ -50,14 +51,11 @@ sqlite3* Database::getDB() {
     return db;
 }
 
-void Database::create() {
+void Database::create(std::string table, std::vector<std::string> column) {
     char* errMsg;
     int rc;
 
-    std::string sql = constructString("CREATE TABLE IF NOT EXISTS", "accounts",
-                                      {"id TEXT PRIMARY KEY", "first TEXT NOT NULL", "last TEXT NOT NULL", "month TEXT NOT NULL", "year TEXT NOT NULL",
-                                       "cvc TEXT NOT NULL", "loans TEXT NOT NULL", "balance REAL NOT NULL", "pin TEXT NOT NULL"},
-                                      false, {});
+    std::string sql = constructString("CREATE TABLE IF NOT EXISTS", table, column, false, {});
 
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
 
@@ -69,16 +67,16 @@ void Database::create() {
     }
 }
 
-void Database::insert(Account account, std::string table, std::vector<std::string> column, std::vector<std::string> value) {
+void Database::insert(std::string table, std::vector<std::string> column, std::vector<std::string> value) {
     std::string sql = constructString("INSERT INTO", table, column, true, value);
 
     char* errMsg;
     int rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
 
     if (rc != SQLITE_OK) {
-        std::cerr << "Error inserting account: " << errMsg << std::endl;
+        std::cerr << "Error inserting data: " << errMsg << std::endl;
         sqlite3_free(errMsg);
     } else {
-        std::cout << "Account inserted successfully." << std::endl;
+        std::cout << "Data inserted successfully." << std::endl;
     }
 }
