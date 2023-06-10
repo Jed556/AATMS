@@ -1,4 +1,4 @@
-#include "../generator.h"
+#include "../handler.h"
 
 void Generator::randomizeSeed() {
     this->seed = seed;

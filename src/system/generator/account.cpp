@@ -1,4 +1,4 @@
-#include "../generator.h"
+#include "../handler.h"
 
 // Function to generate a random 16-character account ID
 std::string Generator::id() {
@@ -18,8 +18,8 @@ std::string Generator::id() {
  * @return int Expiry year
  */
 int Generator::expiryYear() {
-    int year = getDate().year;
-    int expiry = year + 4;
+    DateTime date = getDate();
+    int expiry = date.year + 4;
     return expiry;
 }
 
