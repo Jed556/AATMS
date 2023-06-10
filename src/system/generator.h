@@ -1,8 +1,12 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+#include <sys/time.h>
+#include "database.h"
+
 #include <ctime>
 #include <string>
+#include <vector>
 
 class Generator {
    private:
@@ -10,10 +14,10 @@ class Generator {
 
    public:
     void randomizeSeed();
-    std::string accountID();
-    std::string expirationMonth();
-    std::string expirationYear();
+    std::string id();
+    int expiryYear();
     std::string cvc();
+    DateTime getDate();
 } generate;
 
 #endif  // GENERATOR_H
