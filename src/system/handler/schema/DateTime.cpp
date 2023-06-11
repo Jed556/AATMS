@@ -66,3 +66,26 @@ std::string DateTime::toString(std::string which) const {
     std::cerr << "Error: Invalid parameter" << std::endl;
     return "Error: Invalid parameter";
 }
+
+//reverse engineers a full date format from toString("full") 01/11/2021-12:00:00-UTC+8
+DateTime DateTime::fromString(std::string datetimezone) {
+    DateTime datetime;
+
+    std::string month = datetimezone.substr(0, 2);
+    std::string day = datetimezone.substr(3, 2);
+    std::string year = datetimezone.substr(6, 4);
+    std::string hour = datetimezone.substr(11, 2);
+    std::string minute = datetimezone.substr(14, 2);
+    std::string second = datetimezone.substr(17, 2);
+    std::string timezone = datetimezone.substr(20, 5);
+
+    datetime.month = std::stoi(month);
+    datetime.day = std::stoi(day);
+    datetime.year = std::stoi(year);
+    datetime.hour = std::stoi(hour);
+    datetime.minute = std::stoi(minute);
+    datetime.second = std::stoi(second);
+    datetime.timezone = timezone;
+
+    return datetime;
+}
