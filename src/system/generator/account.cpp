@@ -18,7 +18,7 @@ std::string Generator::id() {
  * @return int Expiry year
  */
 int Generator::expiryYear() {
-    DateTime date = getDate();
+    DateTime date = getDate(UTC);
     int expiry = date.year + 4;
     return expiry;
 }

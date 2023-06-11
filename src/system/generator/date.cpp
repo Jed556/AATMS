@@ -5,9 +5,15 @@
  *
  * @return DateTime Current date and time structure
  */
-DateTime Generator::getDate() {
+DateTime Generator::getDate(int UTC) {
     time_t now = time(0);
     tm* ltm = localtime(&now);
+    tm* gmtm = gmtime(&now);
+
+    // add 8 hours to the current time to get the Philippine time
+    ltm->tm_hour += UTC;
+    mktime(ltm);
+
     int month = 1 + ltm->tm_mon;
     int day = ltm->tm_mday;
     int year = 1900 + ltm->tm_year;
@@ -16,9 +22,9 @@ DateTime Generator::getDate() {
     int second = ltm->tm_sec;
 
     // get the timezone
-    char timezone_str[10];
-    strftime(timezone_str, sizeof(timezone_str), "%z", ltm);
-    std::string timezone = timezone_str;
+    std::string timezone = "UTC";
+    if (UTC > 0) timezone += "+";
+    timezone += std::to_string(UTC);
 
     // get the milliseconds
     timeval tv;
@@ -26,5 +32,6 @@ DateTime Generator::getDate() {
     int millisecond = tv.tv_usec / 1000;
 
     DateTime date = {month, day, year, hour, minute, second, millisecond, timezone};
+    std::cout << date.toString("full") << std::endl;
     return date;
 }
