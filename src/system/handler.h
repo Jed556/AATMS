@@ -48,14 +48,15 @@ class Generator {
    private:
     int seed;
     int UTC = 0;
+    Database& database;
 
    public:
-    Generator(int UTC);
+    Generator(Database& database, int UTC);
     void randomizeSeed();
-    std::string id();
+    std::string id(bool withChars, int length);
     int expiryYear();
     std::string cvc();
-    DateTime getDate(int UTC);
+    DateTime getDate();
 };
 
 //-------------------- Builder --------------------//
@@ -124,7 +125,7 @@ struct Loan {
 class Handler {
    private:
     Database& database;
-    Generator* generate;
+    Generator generate;
     int UTC = 0;
 
     class HandAccount {
@@ -135,6 +136,7 @@ class Handler {
         HandAccount(const Handler& thisHandler);
         int create(Account& account, Name name, std::string pin);
         int edit(Account& account, Name name, std::string pin);
+        int login(Account& account, std::string id, std::string pin);
         int get();
     };
 

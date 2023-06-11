@@ -7,6 +7,12 @@
 #include <string>
 #include <vector>
 
+struct RowData {
+    std::vector<std::string> columnValues;
+};
+
+static int callback(void* data, int argc, char** argv, char** azColName);
+
 /**
  * @brief Database handler
  *
@@ -23,8 +29,8 @@ class Database {
     int openDB();
     void closeDB();
     sqlite3* getDB();
-    int execute(std::string sql, std::string type);
-    std::string select(std::string table, std::string columns, std::string condition);
+    std::vector<RowData> execute(std::string sql, std::string type);
+    std::vector<RowData> select(std::string table, std::vector<std::string> columns, std::string condition);
     void create(std::string table, std::vector<std::string> columns, std::vector<std::string> constraints);
     void insert(std::string table, std::vector<std::string> column, std::vector<std::string> value);
     void update(std::string table, std::vector<std::string> column, std::vector<std::string> value, std::string condition);
