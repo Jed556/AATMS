@@ -1,4 +1,4 @@
 #include "../handler.h"
 
-Generator::Generator(int UTC) : UTC(UTC) {
+Generator::Generator(Database& database, int UTC) : database(database), UTC(UTC) {
 }

@@ -5,7 +5,7 @@
  *
  * @return DateTime Current date and time structure
  */
-DateTime Generator::getDate(int UTC) {
+DateTime Generator::getDate() {
     time_t now = time(0);
     tm* ltm = localtime(&now);
     tm* gmtm = gmtime(&now);
