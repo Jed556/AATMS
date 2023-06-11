@@ -7,3 +7,11 @@ void pause(std::string message) {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::cin.get();
 }
+
+void clear() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}

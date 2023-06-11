@@ -56,7 +56,7 @@ int loop(Handler& handler, Account& account) {
                 if (handler.account.login(account, id, pin)) {
                     int accountOption = -1;
                     while (accountOption != 6) {
-                        std::cout << "\n----- Account Options -----   -----" << account.name.user << " -----" << std::endl;
+                        std::cout << "\n----- Account Options -----   ----- " << account.name.user << " -----   Balance: " << account.balance.savings << " -----" << std::endl;
                         std::cout << "\nEnter 1 to check balance, 2 to deposit, 3 to withdraw, 4 to transfer, 5 for loan, or 6 to logout: ";
                         std::cin >> accountOption;
 
@@ -162,7 +162,7 @@ int loop(Handler& handler, Account& account) {
             }
         }
 
-        // system("cls");
+        clear();
     }
     return 0;
 }
