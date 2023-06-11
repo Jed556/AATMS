@@ -54,6 +54,7 @@ int Handler::HandAccount::login(Account& account, std::string id, std::string pi
     std::string check = "id = '" + id + "' AND pin = '" + pin + "'";
     if (handler.database.select("accounts", {"id", "first", "middle", "last", "user", "pin"}, check).size() > 0) {
         std::cout << "Login successful!" << std::endl;
+        std::cout << std::endl;
         update(account, id);
         std::cout << "Logged in as " << account.name.user << std::endl;
         std::cout << "Account ID: " << account.id << std::endl;
