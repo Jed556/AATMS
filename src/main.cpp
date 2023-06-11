@@ -37,7 +37,167 @@ int Init(Database& database) {
     return 0;
 }
 
-int loop(Handler& handler, Account& account) {
+int Create(Account& account, Handler& handler) {
+    clear();
+    std::cout << "----- Welcome to AATMS -----   ----- Account Creation -----" << std::endl;
+
+    std::string firstName, middleName, lastName, userName, pin;
+    std::cout << "Enter first name: ";
+    std::cin >> firstName;
+    std::cout << "Enter middle name: ";
+    std::cin >> middleName;
+    std::cout << "Enter last name: ";
+    std::cin >> lastName;
+    std::cout << "Enter username: ";
+    std::cin >> userName;
+
+    while (true) {
+        int valid = true;
+        clear();
+        std::cout << "----- Welcome to AATMS -----   ----- Account Creation -----" << std::endl;
+        std::cout << "Enter first name: " << firstName << std::endl;
+        std::cout << "Enter middle name: " << middleName << std::endl;
+        std::cout << "Enter last name: " << lastName << std::endl;
+        std::cout << "Enter username: " << userName << std::endl;
+
+        std::cout << "Enter PIN: ";
+        std::cin >> pin;
+        if (pin.length() != 4) {
+            std::cout << "Invalid PIN length. Please try again." << std::endl;
+            valid = false;
+        }
+
+        for (char c : pin) {
+            if (c < '0' || c > '9') {
+                valid = false;
+                std::cout << "Invalid PIN. Please enter 4 valid integers (0-9)." << std::endl;
+                break;
+            }
+        }
+
+        if (!valid) continue;
+        break;
+    }
+
+    Name name = {firstName, middleName, lastName, userName};
+    handler.account.create(account, name, pin);
+    pause("Account created successfully! Press Enter to continue...");
+
+    clear();
+    std::cout << "----- Welcome to AATMS " << account.name.user << " -----" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Your user ID is: " << account.id << std::endl;
+    std::cout << "Your CVC is: " << account.cvc << std::endl;
+    std::cout << "Your Expiration Date is: " << (account.expiry.month < 10 ? "0" : "") << account.expiry.month << "/" << account.expiry.year << std::endl;
+    std::cout << std::endl;
+    std::cout << "Please keep this information safe." << std::endl;
+
+    pause("Press Enter to continue...");
+}
+
+int Login(Account& account, Handler& handler) {
+    std::string id, pin;
+    std::cout << "Enter your id: ";
+    std::cin >> id;
+    std::cout << "Enter PIN: ";
+    std::cin >> pin;
+    int err = handler.account.login(account, id, pin);
+
+    if (err) {
+        std::cout << "Login failed!";
+        if (err == 1)
+            std::cout << "Account not found!" << std::endl;
+        else if (err == 2)
+            std::cout << "Incorrect PIN!" << std::endl;
+
+        std::cout << std::endl;
+        pause("Press Enter to go back...");
+    } else {
+        std::cout << "Login successful!" << std::endl;
+        std::cout << std::endl;
+        std::cout << "Logged in as " << account.name.user << std::endl;
+        std::cout << "Account ID: " << account.id << std::endl;
+        std::cout << "Name: " << account.name.first << " " << account.name.middle << " " << account.name.last << std::endl;
+        // std::cout << "Name: " << account.name.first << " " << account.name.middle << " " << account.name.last << std::endl;
+        // std::cout << "Username: " << account.name.user << std::endl;
+        // std::cout << "CVC: " << account.cvc << std::endl;
+        // std::cout << "PIN: " << account.pin << std::endl;
+        // std::cout << "Expiry: " << account.expiry.month << "/" << account.expiry.year << std::endl;
+        std::cout << "Loan Balance: " << account.balance.loan << std::endl;
+        std::cout << "Savings Balance: " << account.balance.savings << std::endl;
+        std::cout << "Created: " << account.date.created.toString("full") << std::endl;
+        pause("\nPress enter to continue...");
+    }
+    return err;
+}
+
+void Deposit(Account& account, Handler& handler) {
+    double depositAmount;
+    std::cout << "Enter amount to deposit: ";
+    std::cin >> depositAmount;
+    std::cout << "Deposit amount: $" << depositAmount << std::endl;  // Placeholder
+    std::cout << std::endl;
+
+    handler.transact.deposit(account, depositAmount, "AATMS");
+    pause("Press Enter to go back...");
+}
+
+void Withdraw(Account& account, Handler& handler) {
+    double withdrawAmount;
+    std::cout << "Enter amount to withdraw: ";
+    std::cin >> withdrawAmount;
+    std::cout << "Withdrawal amount: $" << withdrawAmount << std::endl;  // Placeholder
+    std::cout << std::endl;
+
+    handler.transact.withdraw(account, withdrawAmount, "AATMS");
+    pause("Press Enter to go back...");
+}
+
+void Transfer(Account& account, Handler& handler, Database& database) {
+    std::string transferUserId;
+    double transferAmount;
+    std::cout << "Enter user ID to transfer to: ";
+    std::cin >> transferUserId;
+    std::cout << "Enter amount to transfer: ";
+    std::cin >> transferAmount;
+    std::cout << "Transfer amount: $" << transferAmount << " to user ID: " << transferUserId << std::endl;  // Placeholder
+    std::cout << std::endl;
+
+    handler.transact.transfer(account, transferUserId, transferAmount, "AATMS");
+    std::string check = "id = '" + transferUserId + "'";
+    std::string transferNameUser = database.select("accounts", {"id", "name"}, check)[0].columnValues[1];
+    std::cout << "Successfully transferred $" << transferAmount << " to user ID: " << transferNameUser << std::endl;
+    pause("Press Enter to go back...");
+}
+
+void Loan(Account& account, Handler& handler) {
+    double loanAmount;
+    std::cout << "Enter amount to loan: ";
+    std::cin >> loanAmount;
+    std::cout << "Loan amount: $" << loanAmount << std::endl;  // Placeholder
+    std::cout << std::endl;
+    pause("Press Enter to go back...");
+}
+
+void Logout(Account& account, Handler& handler) {
+    std::cout << "Logging out..." << std::endl;
+    handler.account.logout(account);
+
+    std::cout << std::endl;
+    std::cout << "Logged out successfully!" << std::endl;
+    pause("Press Enter to continue...");
+}
+
+void Delete(Account& account, Handler& handler) {
+    std::cout << "Deleting account..." << std::endl;
+    handler.account.remove(account.id);
+
+    std::cout << std::endl;
+    std::cout << "Account deleted successfully!" << std::endl;
+    pause("\nPress enter to continue...");
+}
+
+int loop(Handler& handler, Account& account, Database& database) {
     int choice = 0;
     while (choice != -1) {
         clear();
@@ -49,76 +209,42 @@ int loop(Handler& handler, Account& account) {
 
         switch (choice) {
             case 1: {
-                // Login
-                std::string id, pin;
-                std::cout << "Enter your id: ";
-                std::cin >> id;
-                std::cout << "Enter PIN: ";
-                std::cin >> pin;
+                int err = Login(account, handler);
 
-                if (handler.account.login(account, id, pin)) {
+                if (!err) {
                     int accountOption = -1;
                     while (accountOption != 6) {
                         clear();
                         std::cout << "\n----- Account Options -----   ----- " << account.name.user
-                                  << " -----   ----- Balance: " << account.balance.savings << " -----" << std::endl;
-                        std::cout << "\nOPTIONS:   [1] Check Balance   [2] Deposit   [3] Withdraw   [4] Transfer   [5] Loan   [6] Logout";
+                                  << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+                        std::cout << "\nOPTIONS:   [1] Refresh   [2] Deposit   [3] Withdraw   [4] Transfer   [5] Loan   [6] Logout";
                         std::cout << "\n>> ";
                         std::cin >> accountOption;
 
                         std::cout << std::endl;
-                        std::string transferUserId;
                         switch (accountOption) {
                             case 1:
-                                // Check balance
-                                std::cout << "Balance: $" << account.balance.savings << std::endl;  // Placeholder
-                                std::cout << std::endl;
-                                pause("Press Enter to go back...");
+                                handler.account.update(account, account.id);
                                 break;
                             case 2:
-                                // Deposit
-                                double depositAmount;
-                                std::cout << "Enter amount to deposit: ";
-                                std::cin >> depositAmount;
-                                std::cout << "Deposit amount: $" << depositAmount << std::endl;  // Placeholder
-                                std::cout << std::endl;
-                                pause("Press Enter to go back...");
+                                Deposit(account, handler);
                                 break;
                             case 3:
-                                // Withdraw
-                                double withdrawAmount;
-                                std::cout << "Enter amount to withdraw: ";
-                                std::cin >> withdrawAmount;
-                                std::cout << "Withdrawal amount: $" << withdrawAmount << std::endl;  // Placeholder
-                                std::cout << std::endl;
-                                pause("Press Enter to go back...");
+                                Withdraw(account, handler);
                                 break;
                             case 4:
-                                // Transfer
-                                double transferAmount;
-                                std::cout << "Enter user ID to transfer to: ";
-                                std::cin >> transferUserId;
-                                std::cout << "Enter amount to transfer: ";
-                                std::cin >> transferAmount;
-                                std::cout << "Transfer amount: $" << transferAmount << " to user ID: " << transferUserId << std::endl;  // Placeholder
-                                std::cout << std::endl;
-                                pause("Press Enter to go back...");
+                                Transfer(account, handler, database);
                                 break;
                             case 5:
-                                // Loan
-                                double loanAmount;
-                                std::cout << "Enter amount to loan: ";
-                                std::cin >> loanAmount;
-                                std::cout << "Loan amount: $" << loanAmount << std::endl;  // Placeholder
-                                std::cout << std::endl;
-                                pause("Press Enter to go back...");
+                                Loan(account, handler);
                                 break;
                             case 6:
-                                // Logout
-                                std::cout << "Logging out..." << std::endl;
+                                Logout(account, handler);
                                 choice = 0;
-                                std::cout << std::endl;
-                                pause("Logged out. Press Enter to continue...");
+                                break;
+                            case 7:
+                                Delete(account, handler);
+                                choice = 0;
                                 break;
                             default:
                                 pause("Invalid choice. Press Enter to try again...");
@@ -129,65 +255,10 @@ int loop(Handler& handler, Account& account) {
                 break;
             }
             case 2: {
-                // Create account
-                clear();
-                std::cout << "----- Welcome to AATMS -----   ----- Account Creation -----" << std::endl;
-
-                std::string firstName, middleName, lastName, userName, pin;
-                std::cout << "Enter first name: ";
-                std::cin >> firstName;
-                std::cout << "Enter middle name: ";
-                std::cin >> middleName;
-                std::cout << "Enter last name: ";
-                std::cin >> lastName;
-                std::cout << "Enter username: ";
-                std::cin >> userName;
-
-                while (true) {
-                    int valid = true;
-                    clear();
-                    std::cout << "----- Welcome to AATMS -----   ----- Account Creation -----" << std::endl;
-                    std::cout << "Enter first name: " << firstName << std::endl;
-                    std::cout << "Enter middle name: " << middleName << std::endl;
-                    std::cout << "Enter last name: " << lastName << std::endl;
-                    std::cout << "Enter username: " << userName << std::endl;
-
-                    std::cout << "Enter PIN: ";
-                    std::cin >> pin;
-                    if (pin.length() != 4) {
-                        std::cout << "Invalid PIN length. Please try again." << std::endl;
-                        valid = false;
-                    }
-
-                    for (char c : pin) {
-                        if (c < '0' || c > '9') {
-                            valid = false;
-                            std::cout << "Invalid PIN. Please enter 4 valid integers (0-9)." << std::endl;
-                            break;
-                        }
-                    }
-
-                    if (!valid) continue;
-                    break;
-                }
-
-                Name name = {firstName, middleName, lastName, userName};
-                handler.account.create(account, name, pin);
-                pause("Account created successfully! Press Enter to continue...");
-
-                clear();
-                std::cout << "----- Welcome to AATMS " << account.name.user << " -----" << std::endl;
-                std::cout << std::endl;
-                std::cout << "Your user ID is: " << account.id << std::endl;
-                std::cout << "Your CVC is: " << account.cvc << std::endl;
-                std::cout << "Your Expiration Date is: " << (account.expiry.month < 10 ? "0" : "") << account.expiry.month << "/" << account.expiry.year << std::endl;
-                std::cout << std::endl;
-                std::cout << "Please keep this information safe." << std::endl;
-                pause("Press Enter to continue...");
+                Create(account, handler);
                 break;
             }
             case -1: {
-                // Exit
                 std::cout << "Exiting..." << std::endl;
                 return 0;
             }
@@ -207,7 +278,7 @@ int WinMain(int argc, char const* argv[]) {
     Handler handler(database, +8);
     Init(database);
 
-    loop(handler, account);
+    loop(handler, account, database);
 
     database.closeDB();
 
