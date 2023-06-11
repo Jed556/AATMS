@@ -3,7 +3,6 @@
 
 #include <sqlite3.h>
 #include <sys/time.h>
-#include "database.h"
 
 #include <algorithm>
 #include <array>
@@ -11,6 +10,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "database.h"
 
 //-------------------- Schema --------------------//
 
@@ -27,7 +28,7 @@ struct DateTime {
     int second;
     int millisecond;
     std::string timezone;
-    std::string toString() const;
+    std::string toString(std::string which) const;
 };
 
 /**
@@ -46,13 +47,15 @@ struct Name {
 class Generator {
    private:
     int seed;
+    int UTC = 0;
 
    public:
+    Generator(int UTC);
     void randomizeSeed();
     std::string id();
     int expiryYear();
     std::string cvc();
-    DateTime getDate();
+    DateTime getDate(int UTC);
 };
 
 //-------------------- Builder --------------------//
@@ -62,10 +65,14 @@ class Generator {
  *
  */
 struct History {
-    double amount;
-    std::string type;  // "deposit", "withdraw", "loan", "pay", "transfer", "login", "logout", "create"
-    std::string merchant;
+    std::string log_id;  // History ID
+    std::string id;
+    std::string to_id;  // "transfer"
     DateTime date;
+    std::string type;  // "deposit", "withdraw", "loan", "pay", "transfer", "login", "logout", "create"
+    double amount;
+    double balance;
+    std::string merchant;
 };
 
 /**
@@ -75,12 +82,7 @@ struct History {
 struct Account {
     std::string id;
     bool create;
-    struct Name {
-        std::string first;
-        std::string middle;
-        std::string last;
-        std::string user;
-    } name;
+    Name name;
     std::string cvc;
     std::string pin;
     struct Expiry {
@@ -105,10 +107,15 @@ struct Account {
  *
  */
 struct Loan {
+    std::string loan_id;
+    std::string id;
+    std::string type;  // "create", "pay", "strike"
     double amount;
-    double amount_payed;
+    double payed;
+    int interest;
     int months;
     int months_left;
+    int strikes;
     std::vector<History> history;
 };
 
@@ -118,41 +125,43 @@ class Handler {
    private:
     Database& database;
     Generator* generate;
+    int UTC = 0;
 
     class HandAccount {
        private:
-        Handler& thisHandler;
+        Handler& handler;
 
        public:
         HandAccount(const Handler& thisHandler);
-        void create(Account& account, Name name, std::string pin);
-        void edit();
-        void get();
+        int create(Account& account, Name name, std::string pin);
+        int edit(Account& account, Name name, std::string pin);
+        int get();
     };
 
     class HandHistory {
        private:
-        Handler& thisHandler;
+        Handler& handler;
 
        public:
         HandHistory(const Handler& thisHandler);
-        void create();
-        void get();
+        int create(History& history, std::string id, std::string to_id, std::string type, double amount, double balance, std::string merchant);
+        int get(History& history, std::string id, std::string type, std::string merchant);
     };
 
     class HandLoan {
        private:
-        Handler& thisHandler;
+        Handler& handler;
 
        public:
         HandLoan(const Handler& thisHandler);
-        void create();
-        void edit();
-        void get();
+        int create(Loan& loan, std::string loan_id, std::string id, std::string type, double amount, int interest, int months);
+        int get(Loan& loan, std::string loan_id, std::string id, std::string type, std::string merchant, std::string date);
+        int pay(Loan& loan, double amount);
+        int strike(Loan& loan, History& history);
     };
 
    public:
-    Handler(Database& database);
+    Handler(Database& database, int UTC);
     HandAccount account;
     HandHistory history;
     HandLoan loan;
