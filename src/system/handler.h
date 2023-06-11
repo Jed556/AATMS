@@ -143,9 +143,20 @@ class Handler {
         int create(Account& account, Name name, std::string pin);
         int edit(Account& account, Name name, std::string pin);
         int login(Account& account, std::string id, std::string pin);
-        int logout(Account& account, std::string id);
+        int logout(Account& account);
         int update(Account& account, std::string id);
-        int get();
+        int remove(std::string id);
+    };
+
+    class HandTransaction {
+       private:
+        Handler& handler;
+
+       public:
+        HandTransaction(const Handler& thisHandler);
+        int deposit(Account& account, double amount, std::string merchant);
+        int withdraw(Account& account, double amount, std::string merchant);
+        int transfer(Account& account, std::string to_id, double amount, std::string merchant);
     };
 
     class HandHistory {
@@ -173,6 +184,7 @@ class Handler {
    public:
     Handler(Database& database, int UTC);
     HandAccount account;
+    HandTransaction transact;
     HandHistory history;
     HandLoan loan;
 };
