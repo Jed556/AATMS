@@ -1,9 +1,18 @@
 #include "../handler.h"
 
-// Function to generate a random 16-character account ID
-std::string Generator::id() {
-    const std::string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const int length = 16;
+/**
+ * @brief Random ID generator
+ * 
+ * @param withChars Include characters
+ * @param length Length of ID
+ * @return std::string 
+ */
+std::string Generator::id(bool withChars, int length) {
+    length = length || 16;
+    std::string chars = "0123456789";
+    if (withChars) {
+        chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    }
     std::string accountID;
     for (int i = 0; i < length; ++i) {
         int randomIndex = rand() % chars.length();
