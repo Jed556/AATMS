@@ -8,10 +8,14 @@
 #include <array>
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
 #include "database.h"
+
+//-------------------- Utility --------------------//
+void pause(std::string message);
 
 //-------------------- Schema --------------------//
 
@@ -29,6 +33,7 @@ struct DateTime {
     int millisecond;
     std::string timezone;
     std::string toString(std::string which) const;
+    DateTime fromString(std::string datetimezone);
 };
 
 /**
@@ -137,6 +142,8 @@ class Handler {
         int create(Account& account, Name name, std::string pin);
         int edit(Account& account, Name name, std::string pin);
         int login(Account& account, std::string id, std::string pin);
+        int logout(Account& account, std::string id);
+        int update(Account& account, std::string id);
         int get();
     };
 
