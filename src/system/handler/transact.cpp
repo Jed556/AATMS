@@ -24,6 +24,7 @@ int Handler::HandTransaction::deposit(Account& account, double amount, std::stri
 
     std::string check = "id = '" + account.id + "'";
     handler.database.update("accounts", {"savings"}, {std::to_string(balance)}, check);
+    handler.account.update(account, account.id);
 
     return 0;
 }
@@ -48,6 +49,7 @@ int Handler::HandTransaction::withdraw(Account& account, double amount, std::str
 
     std::string check = "id = '" + account.id + "'";
     handler.database.update("accounts", {"savings"}, {std::to_string(balance)}, check);
+    handler.account.update(account, account.id);
 
     return 0;
 }
