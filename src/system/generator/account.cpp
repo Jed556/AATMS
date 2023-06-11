@@ -2,13 +2,13 @@
 
 /**
  * @brief Random ID generator
- * 
+ *
  * @param withChars Include characters
  * @param length Length of ID
- * @return std::string 
+ * @return std::string
  */
 std::string Generator::id(bool withChars, int length) {
-    length = length || 16;
+    length = (length == 0) ? 16 : length;
     std::string chars = "0123456789";
     if (withChars) {
         chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -17,6 +17,7 @@ std::string Generator::id(bool withChars, int length) {
     for (int i = 0; i < length; ++i) {
         int randomIndex = rand() % chars.length();
         accountID += chars[randomIndex];
+        // std::cout << "chars: " << chars << ", randomIndex: " << randomIndex << ", accountID: " << accountID << std::endl;
     }
     return accountID;
 }

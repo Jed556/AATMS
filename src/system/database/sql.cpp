@@ -127,16 +127,14 @@ std::vector<RowData> Database::execute(std::string sql, std::string type) {
         sqlite3_free(errMsg);
         return rows;
     } else {
-        std::cout << "[SUCCESS] " << sql << std::endl
-                  << "[MATCH] ";
-
         // Process the retrieved data from the vector of rows
-        for (const auto& row : rows) {
-            for (const auto& value : row.columnValues) {
-                std::cout << value << " ";
-            }
-            std::cout << std::endl;
-        }
+        // std::cout << "[SUCCESS] " << sql << std::endl << "[MATCH] ";
+        // for (const auto& row : rows) {
+        //     for (const auto& value : row.columnValues) {
+        //         std::cout << value << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
         return rows;
     }
 }
