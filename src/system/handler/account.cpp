@@ -53,34 +53,18 @@ int Handler::HandAccount::create(Account& account, Name name, std::string pin) {
 int Handler::HandAccount::login(Account& account, std::string id, std::string pin) {
     std::string check = "id = '" + id + "' AND pin = '" + pin + "'";
     if (handler.database.select("accounts", {"id", "first", "middle", "last", "user", "pin"}, check).size() > 0) {
-        std::cout << "Login successful!" << std::endl;
-        std::cout << std::endl;
+
         update(account, id);
-        std::cout << "Logged in as " << account.name.user << std::endl;
-        std::cout << "Account ID: " << account.id << std::endl;
-        std::cout << "Name: " << account.name.first << " " << account.name.middle << " " << account.name.last << std::endl;
-        // std::cout << "Name: " << account.name.first << " " << account.name.middle << " " << account.name.last << std::endl;
-        // std::cout << "Username: " << account.name.user << std::endl;
-        // std::cout << "CVC: " << account.cvc << std::endl;
-        // std::cout << "PIN: " << account.pin << std::endl;
-        // std::cout << "Expiry: " << account.expiry.month << "/" << account.expiry.year << std::endl;
-        std::cout << "Loan Balance: " << account.balance.loan << std::endl;
-        std::cout << "Savings Balance: " << account.balance.savings << std::endl;
-        std::cout << "Created: " << account.date.created.toString("full") << std::endl;
-        pause("\nPress enter to continue...");
-
-        return 1;
-    } else {
-        std::cout << "Login failed. Please try again." << std::endl;
-
         return 0;
+    } else {
+        // std::cerr << "Login failed. Please try again." << std::endl;
+        return 1;
     }
 }
 
 int Handler::HandAccount::logout(Account& account) {
     account = {};
-    std::cout << "Logged out successfully!" << std::endl;
-    pause("\nPress enter to continue...");
+    // std::cout << "Logged out successfully!" << std::endl;
 
     return 0;
 }
@@ -118,14 +102,10 @@ int Handler::HandAccount::remove(std::string id) {
     std::string check = "id = " + id;
     if (handler.database.select("accounts", {"id"}, check).size() > 0) {
         handler.database.remove("accounts", check);
-        std::cout << "Account deleted successfully!" << std::endl;
-        pause("\nPress enter to continue...");
-
-        return 1;
-    } else {
-        std::cerr << "Account not found." << std::endl;
-        pause("\nPress enter to continue...");
-
+        // std::cout << "Account deleted!" << std::endl;
         return 0;
+    } else {
+        std::cerr << "[ERROR] Account not found." << std::endl;
+        return 1;
     }
 }
