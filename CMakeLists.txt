@@ -42,9 +42,15 @@ target_link_libraries(${PROJECT_NAME}
     $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
 )
 
-# Copy resources to build directory
-file(COPY ${CMAKE_SOURCE_DIR}/res/ DESTINATION ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/res)
-file(COPY ${CMAKE_SOURCE_DIR}/database/ DESTINATION ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/database)
+# Copy resources to build directory  during the process
+add_custom_target(copy_files ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/res
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/database ${CMAKE_BINARY_DIR}/${FOLDER_NAME}/database
+    COMMENT "Copying files during build"
+)
+
+# Add the custom target as a dependency of the main target
+add_dependencies(${PROJECT_NAME} copy_files)
 
 # Set the language for the target
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
