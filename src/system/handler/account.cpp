@@ -67,7 +67,7 @@ int Handler::HandAccount::login(Account& account, std::string id, std::string pi
         std::cout << "Loan Balance: " << account.balance.loan << std::endl;
         std::cout << "Savings Balance: " << account.balance.savings << std::endl;
         std::cout << "Created: " << account.date.created.toString("full") << std::endl;
-        pause("\nPress enter to continue.");
+        pause("\nPress enter to continue...");
 
         return 1;
     } else {
@@ -75,6 +75,14 @@ int Handler::HandAccount::login(Account& account, std::string id, std::string pi
 
         return 0;
     }
+}
+
+int Handler::HandAccount::logout(Account& account) {
+    account = {};
+    std::cout << "Logged out successfully!" << std::endl;
+    pause("\nPress enter to continue...");
+
+    return 0;
 }
 
 /**
@@ -98,4 +106,26 @@ int Handler::HandAccount::update(Account& account, std::string id) {
     account.date.created = convert.fromString(data[11]);
 
     return 0;
+}
+
+/**
+ * @brief Delete an account
+ *
+ * @param id Account ID to delete
+ * @return int
+ */
+int Handler::HandAccount::remove(std::string id) {
+    std::string check = "id = " + id;
+    if (handler.database.select("accounts", {"id"}, check).size() > 0) {
+        handler.database.remove("accounts", check);
+        std::cout << "Account deleted successfully!" << std::endl;
+        pause("\nPress enter to continue...");
+
+        return 1;
+    } else {
+        std::cerr << "Account not found." << std::endl;
+        pause("\nPress enter to continue...");
+
+        return 0;
+    }
 }
