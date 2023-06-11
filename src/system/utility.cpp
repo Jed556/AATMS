@@ -15,3 +15,19 @@ void clear() {
     system("clear");
 #endif
 }
+
+int confirm(std::string message) {
+    std::string response;
+    std::cout << message << " [y/n]" << std::endl;
+    std::cout << ">> ";
+    std::cin >> response;
+
+    if (response == "y" || response == "Y" || response == "yes" || response == "Yes" || response == "YES")
+        return 1;
+    else if (response == "n" || response == "N" || response == "no" || response == "No" || response == "NO")
+        return 0;
+
+    std::cout << "[ERROR] Invalid response" << std::endl
+              << std::endl;
+    return confirm(message);
+}
