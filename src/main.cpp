@@ -1,10 +1,8 @@
 #include "system/AATMS.h"
 
-int WinMain(int argc, char const* argv[]) {
-    // Initialize
-    Account account;
-    Database database("../database/database.db");
-    Handler handler(database, +8);
+std::string databasePath = "../database/database.db";
+
+int Init(Database& database) {
     database.openDB();
 
     database.create(
@@ -21,8 +19,6 @@ int WinMain(int argc, char const* argv[]) {
          "INTEGER NOT NULL",
          "REAL NOT NULL",
          "REAL NOT NULL",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL",
          "TEXT NOT NULL"});
 
     database.create(
@@ -38,7 +34,10 @@ int WinMain(int argc, char const* argv[]) {
          "REAL NOT NULL",
          "TEXT NOT NULL",
          "TEXT NOT NULL"});
+    return 0;
+}
 
+int loop(Handler& handler, Account& account) {
     int choice = 0;
     while (choice != -1) {
         std::cout << "----- Welcome to AATMS -----" << std::endl;
@@ -48,17 +47,16 @@ int WinMain(int argc, char const* argv[]) {
         switch (choice) {
             case 1: {
                 // Login
-                std::string username, pin;
-                std::cout << "Enter username: ";
-                std::cin >> username;
+                std::string id, pin;
+                std::cout << "Enter your id: ";
+                std::cin >> id;
                 std::cout << "Enter PIN: ";
                 std::cin >> pin;
 
-                if (true) {  // handler.account.login(username, pin)
-                    std::cout << "Login successful!" << std::endl;
-                    // Show account options after successful login
+                if (handler.account.login(account, id, pin)) {
                     int accountOption = -1;
                     while (accountOption != 6) {
+                        std::cout << "\n----- Account Options -----   -----" << account.name.user << " -----" << std::endl;
                         std::cout << "\nEnter 1 to check balance, 2 to deposit, 3 to withdraw, 4 to transfer, 5 for loan, or 6 to logout: ";
                         std::cin >> accountOption;
 
@@ -66,7 +64,7 @@ int WinMain(int argc, char const* argv[]) {
                         switch (accountOption) {
                             case 1:
                                 // Check balance
-                                std::cout << "Balance: $X.XX" << std::endl;  // Placeholder
+                                std::cout << "Balance: $" << account.balance.savings << std::endl;  // Placeholder
                                 break;
                             case 2:
                                 // Deposit
@@ -108,8 +106,6 @@ int WinMain(int argc, char const* argv[]) {
                                 break;
                         }
                     }
-                } else {
-                    std::cout << "Invalid username or PIN. Please try again." << std::endl;
                 }
                 break;
             }
@@ -124,11 +120,34 @@ int WinMain(int argc, char const* argv[]) {
                 std::cin >> lastName;
                 std::cout << "Enter username: ";
                 std::cin >> userName;
-                std::cout << "Enter PIN: ";
-                std::cin >> pin;
+
+                while (true) {
+                    std::cout << "Enter PIN: ";
+                    std::cin >> pin;
+                    if (pin.length() != 4) {
+                        std::cout << "Invalid PIN length. Please try again." << std::endl;
+                        continue;
+                    }
+
+                    int valid = true;
+                    for (char c : pin) {
+                        if (c < '0' || c > '9') {
+                            valid = false;
+                            break;
+                        }
+                        std::cout << c << std::endl;
+                    }
+
+                    if (!valid) {
+                        std::cout << "Invalid PIN. Please enter 4 valid integers (0-9)." << std::endl;
+                        continue;
+                    }
+
+                    break;
+                }
 
                 Name name = {firstName, middleName, lastName, userName};
-                handler.account.create(account, name, pin);
+                int res = handler.account.create(account, name, pin);
                 std::cout << "Account created successfully!" << std::endl;
                 break;
             }
@@ -143,8 +162,19 @@ int WinMain(int argc, char const* argv[]) {
             }
         }
 
-        system("cls");
+        // system("cls");
     }
+    return 0;
+}
+
+int WinMain(int argc, char const* argv[]) {
+    // Initialize
+    Account account;
+    Database database(databasePath);
+    Handler handler(database, +8);
+    Init(database);
+
+    loop(handler, account);
 
     database.closeDB();
 
