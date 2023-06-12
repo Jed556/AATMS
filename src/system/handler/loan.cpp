@@ -110,22 +110,12 @@ int Handler::HandLoan::pay(struct Loan& loan, Account& account, double amount) {
         return 3;
     }
 
-    // if (amount < loan.amount - loan.payed) {
-    //     std::cerr << "[ERROR] Amount is less than remaining loan amount" << std::endl;
-    //     return 4;
-    // }
-
-    if (amount == loan.amount - loan.payed) {
-        std::cerr << "[ERROR] Amount is equal to remaining loan amount" << std::endl;
-        return 5;
-    }
-
     loan.payed += amount;
     account.balance.savings -= amount;
 
     handler.database.update("loans", {"payed"}, {std::to_string(loan.payed)}, "reference = '" + loan.reference + "'");
     handler.database.update("accounts", {"savings"}, {std::to_string(account.balance.savings)}, "id = '" + account.id + "'");
-    
+
     return 0;
 }
 
