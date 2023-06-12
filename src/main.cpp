@@ -7,33 +7,31 @@ int Init(Database& database) {
 
     database.create(
         "accounts",
-        {"id", "first", "middle", "last", "user", "cvc", "pin", "month", "year", "loan", "savings", "created"},
-        {"TEXT PRIMARY KEY",
-         "TEXT NOT NULL",
-         "TEXT",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL",
-         "INTEGER NOT NULL",
-         "INTEGER NOT NULL",
-         "REAL NOT NULL",
-         "REAL NOT NULL",
-         "TEXT NOT NULL"});
+        {"id", "first", "middle", "last",
+         "user", "cvc", "pin", "month",
+         "year", "loan", "savings", "created"},
+        {"TEXT PRIMARY KEY", "TEXT NOT NULL", "TEXT", "TEXT NOT NULL",
+         "TEXT NOT NULL", "TEXT NOT NULL", "TEXT NOT NULL", "INTEGER NOT NULL",
+         "INTEGER NOT NULL", "REAL NOT NULL", "REAL NOT NULL", "TEXT NOT NULL"});
 
     database.create(
         "history",
-        {"log_id", "id", "to_id", "date", "time", "type", "amount", "balance", "description", "merchant"},
-        {"TEXT PRIMARY KEY",
-         "TEXT NOT NULL",
-         "TEXT",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL",
-         "REAL NOT NULL",
-         "REAL NOT NULL",
-         "TEXT NOT NULL",
-         "TEXT NOT NULL"});
+        {"log_id", "id", "to_id", "date",
+         "time", "type", "amount", "balance",
+         "description", "merchant"},
+        {"TEXT PRIMARY KEY", "TEXT NOT NULL", "TEXT", "TEXT NOT NULL",
+         "TEXT NOT NULL", "TEXT NOT NULL", "REAL NOT NULL", "REAL NOT NULL",
+         "TEXT NOT NULL", "TEXT NOT NULL"});
+
+    database.create(
+        "loans",
+        {"reference", "id", "type", "amount",
+         "payed", "interest", "months", "months_left",
+         "strikes", "date"},
+        {"TEXT PRIMARY KEY", "TEXT NOT NULL", "TEXT NOT NULL", "REAL NOT NULL",
+         "REAL NOT NULL", "INTEGER NOT NULL", "INTEGER NOT NULL", "INTEGER NOT NULL",
+         "INTEGER NOT NULL", "TEXT NOT NULL"});
+
     return 0;
 }
 
@@ -63,14 +61,16 @@ int Create(Account& account, Handler& handler) {
         std::cout << "Enter PIN: ";
         std::cin >> pin;
         if (pin.length() != 4) {
-            std::cout << "Invalid PIN length. Please try again." << std::endl;
             valid = false;
+            pause("Invalid PIN length. Press Enter to try again...");
+            continue;
         }
 
-        for (char c : pin) {
-            if (c < '0' || c > '9') {
+        for (int i = 0; i < pin.length(); i++) {
+            if (pin[i] < '0' || pin[i] > '9') {
                 valid = false;
                 std::cout << "Invalid PIN. Please enter 4 valid integers (0-9)." << std::endl;
+                pause("Press Enter to try again...");
                 break;
             }
         }
@@ -93,6 +93,8 @@ int Create(Account& account, Handler& handler) {
     std::cout << "Please keep this information safe." << std::endl;
 
     pause("Press Enter to continue...");
+
+    return 0;
 }
 
 int Login(Account& account, Handler& handler) {
@@ -171,12 +173,113 @@ void Transfer(Account& account, Handler& handler, Database& database) {
 }
 
 void Loan(Account& account, Handler& handler) {
-    double loanAmount;
-    std::cout << "Enter amount to loan: ";
-    std::cin >> loanAmount;
-    std::cout << "Loan amount: $" << loanAmount << std::endl;  // Placeholder
-    std::cout << std::endl;
-    pause("Press Enter to go back...");
+    struct Loan loan;
+    int choice = 0;
+    while (true) {
+        clear();
+        std::cout << "----- Loan Options -----   ----- " << account.name.user
+                  << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+        std::cout << "\nOPTIONS:   [1] Refresh   [2] Create   [3] Pay   [4] List   [6] Back";
+
+        handler.loan.current(loan, account.id);
+        if (loan.payed < loan.amount) {
+            std::cout << "\n\n";
+            std::cout << "Active Loan:   $" << loan.payed << " / $" << loan.amount << " at " << loan.interest << "%"
+                      << " for " << loan.months << " months";
+            std::cout << std::endl;
+        }
+        std::cout << "\n>> ";
+        std::cin >> choice;
+
+        int plan;
+        bool cancel = false;
+        int err = 0;
+        switch (choice) {
+            case 1:
+                handler.account.update(account, account.id);
+                // handler.loan.current(loan, account.id);
+                break;
+            case 2:
+                if (loan.payed < loan.amount) {
+                    std::cout << "You already have an active loan. Please pay it off before creating a new one." << std::endl;
+                    pause("Press Enter to go back...");
+                    break;
+                }
+                while (true) {
+                    std::cout << "Enter amount to loan: ";
+                    std::cin >> loan.amount;
+
+                    std::cout << std::endl;
+                    std::cout << "Plans ---------" << std::endl;
+                    int numOptions = handler.loan.getOptions(loan.amount).size();
+                    for (int i = 0; i < numOptions; i++) {
+                        std::cout << "Option [" << i + 1 << "]: " << std::endl;
+                        std::cout << "Total Amount: $" << handler.loan.getOptions(loan.amount)[i][0] << std::endl;
+                        std::cout << "Months: " << handler.loan.getOptions(loan.amount)[i][1] << " months" << std::endl;
+                        std::cout << "Interest Rate: " << handler.loan.getOptions(loan.amount)[i][2] << "%" << std::endl;
+                    }
+
+                    std::cout << "[" << numOptions + 1 << "] Cancel" << std::endl;
+
+                    std::cout << "\n>> ";
+                    std::cin >> plan;
+                    if (plan > numOptions + 1) {
+                        pause("Invalid Plan Index. Press any key to retry...");
+                        continue;
+                    }
+                    if (plan == numOptions + 1) {
+                        cancel = true;
+                    }
+
+                    break;
+                }
+
+                if (cancel) {
+                    std::cout << "Cancelled loan creation" << std::endl;
+                    pause("Press Enter to go back...");
+                    break;
+                }
+
+                --plan;
+                loan.amount = handler.loan.getOptions(loan.amount)[plan][0];
+                loan.months = handler.loan.getOptions(loan.amount)[plan][1];
+                loan.interest = handler.loan.getOptions(loan.amount)[plan][2];
+
+                std::cout << "Details -------" << std::endl;
+                std::cout << "Total Amount: $" << loan.amount << std::endl;
+                std::cout << "Monthly Payment: $" << loan.amount / loan.months << std::endl;
+                std::cout << "Months: " << loan.months << " months" << std::endl;
+                std::cout << "Interest rate: " << loan.interest << "%" << std::endl;
+                std::cout << std::endl;
+
+                if (confirm("Confirm loan?")) {
+                    handler.loan.create(loan, account);
+                    std::cout << "Loan successful!" << std::endl;
+                } else {
+                    std::cout << "Loan cancelled!" << std::endl;
+                }
+
+                pause("Press Enter to go back...");
+                break;
+            case 3:
+                double payAmount;
+                std::cout << "Enter amount to pay: $";
+                std::cin >> payAmount;
+                err = handler.loan.pay(loan, account, payAmount);
+                if (!err)
+                    std::cout << "Total amount payed: $" << loan.payed << std::endl;
+                std::cout << std::endl;
+                pause("Press Enter to go back...");
+                break;
+            case 4:
+                std::cout << "Loan History: Work in Progress..." << std::endl;
+                std::cout << std::endl;
+                pause("Press Enter to go back...");
+                break;
+            case 6:
+                return;
+        }
+    }
 }
 
 void Logout(Account& account, Handler& handler) {
@@ -215,7 +318,7 @@ int loop(Handler& handler, Account& account, Database& database) {
                     int accountOption = -1;
                     while (accountOption != 6) {
                         clear();
-                        std::cout << "\n----- Account Options -----   ----- " << account.name.user
+                        std::cout << "----- Account Options -----   ----- " << account.name.user
                                   << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
                         std::cout << "\nOPTIONS:   [1] Refresh   [2] Deposit   [3] Withdraw   [4] Transfer   [5] Loan   [6] Logout";
                         std::cout << "\n>> ";
