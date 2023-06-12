@@ -53,7 +53,6 @@ int Handler::HandAccount::create(Account& account, Name name, std::string pin) {
 int Handler::HandAccount::login(Account& account, std::string id, std::string pin) {
     std::string check = "id = '" + id + "' AND pin = '" + pin + "'";
     if (handler.database.select("accounts", {"id", "first", "middle", "last", "user", "pin"}, check).size() > 0) {
-
         update(account, id);
         return 0;
     } else {
@@ -65,6 +64,13 @@ int Handler::HandAccount::login(Account& account, std::string id, std::string pi
 int Handler::HandAccount::logout(Account& account) {
     account = {};
     // std::cout << "Logged out successfully!" << std::endl;
+
+    return 0;
+}
+
+int Handler::HandAccount::edit(Account& account) {
+    std::string check = "id = " + account.id;
+    handler.database.update("accounts", {"first", "middle", "last", "user", "pin"}, {account.name.first, account.name.middle, account.name.last, account.name.user, account.pin}, check);
 
     return 0;
 }
@@ -105,7 +111,7 @@ int Handler::HandAccount::remove(std::string id) {
         // std::cout << "Account deleted!" << std::endl;
         return 0;
     } else {
-        std::cerr << "[ERROR] Account not found." << std::endl;
+        // std::cerr << "[ERROR] Account not found." << std::endl;
         return 1;
     }
 }

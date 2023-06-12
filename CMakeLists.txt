@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 set(CMAKE_TOOLCHAIN_FILE "../../Managers/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(AATMS
-    VERSION 1.0.0
+    VERSION 1.1.0
     DESCRIPTION "Advanced Automated Teller Machine System"
     HOMEPAGE_URL "https://github.com/Jed556/AATMS"
     LANGUAGES CXX
@@ -33,6 +33,7 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
+find_package(sdl2-gfx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     unofficial::sqlite3::sqlite3
@@ -40,6 +41,7 @@ target_link_libraries(${PROJECT_NAME}
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
     $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
+    SDL2::SDL2_gfx
 )
 
 # Copy resources to build directory  during the process
