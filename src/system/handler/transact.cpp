@@ -14,7 +14,8 @@ Handler::HandTransaction::HandTransaction(const Handler& thisHandler)
  */
 int Handler::HandTransaction::deposit(Account& account, double amount, std::string merchant) {
     if (amount <= 0) {
-        std::cerr << "[ERROR] Invalid amount" << std::endl;
+        // std::cerr << "[ERROR] Invalid amount" << std::endl;
+        handler.account.update(account, account.id);
         return 1;
     }
 
@@ -39,8 +40,15 @@ int Handler::HandTransaction::deposit(Account& account, double amount, std::stri
  */
 int Handler::HandTransaction::withdraw(Account& account, double amount, std::string merchant) {
     if (amount <= 0) {
-        std::cerr << "[ERROR] Invalid amount" << std::endl;
+        // std::cerr << "[ERROR] Invalid amount" << std::endl;
+        handler.account.update(account, account.id);
         return 1;
+    }
+
+    if (amount > account.balance.savings) {
+        // std::cerr << "[ERROR] Amount is less than account savings" << std::endl;
+        handler.account.update(account, account.id);
+        return 2;
     }
 
     handler.account.update(account, account.id);
@@ -64,11 +72,27 @@ int Handler::HandTransaction::withdraw(Account& account, double amount, std::str
  */
 int Handler::HandTransaction::transfer(Account& account, std::string to_id, double amount, std::string merchant) {
     if (amount <= 0) {
-        std::cerr << "[ERROR] Invalid amount" << std::endl;
+        // std::cerr << "[ERROR] Invalid amount" << std::endl;
         return 1;
     }
+
+    if (amount > account.balance.savings) {
+        // std::cerr << "[ERROR] Amount is less than account savings" << std::endl;
+        return 2;
+    }
+
+    if (to_id == account.id) {
+        // std::cerr << "[ERROR] Cannot transfer to same account" << std::endl;
+        return 3;
+    }
+
+    std::string check = "id = '" + to_id + "'";
+    if (handler.database.select("loans", {"reference", "id", "type"}, check).size() <= 0) {
+        // std::cerr << "[ERROR] Recipient account does not exist" << std::endl;
+        return 4;
+    }
+
     double balance;
-    std::string check;
 
     // User side
     handler.account.update(account, account.id);
