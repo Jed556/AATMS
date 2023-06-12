@@ -92,14 +92,15 @@ int Handler::HandTransaction::transfer(Account& account, std::string to_id, doub
         return 4;
     }
 
+    std::string myId = account.id;
     double balance;
 
     // User side
-    handler.account.update(account, account.id);
+    handler.account.update(account, myId);
 
     balance = account.balance.savings - amount;
 
-    check = "id = '" + account.id + "'";
+    check = "id = '" + myId + "'";
     handler.database.update("accounts", {"savings"}, {std::to_string(balance)}, check);
 
     // Recipient side
@@ -111,6 +112,6 @@ int Handler::HandTransaction::transfer(Account& account, std::string to_id, doub
     handler.database.update("accounts", {"savings"}, {std::to_string(balance)}, check);
 
     // Return to user side
-    handler.account.update(account, account.id);
+    handler.account.update(account, myId);
     return 0;
 }
