@@ -8,6 +8,7 @@
  * @return std::string
  */
 std::string Generator::id(bool withChars, int length) {
+    randomizeSeed();
     length = (length == 0) ? 16 : length;
     std::string chars = "0123456789";
     if (withChars) {
@@ -39,6 +40,7 @@ int Generator::expiryYear() {
  * @return std::string CVC
  */
 std::string Generator::cvc() {
+    randomizeSeed();
     const std::string chars = "0123456789";
     const int length = 3;
     std::string cvc;
