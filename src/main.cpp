@@ -197,7 +197,7 @@ void Loan(Account& account, Handler& handler) {
         switch (choice) {
             case 1:
                 handler.account.update(account, account.id);
-                // handler.loan.current(loan, account.id);
+                handler.loan.current(loan, account.id);
                 break;
             case 2:
                 if (loan.payed < loan.amount) {
@@ -263,6 +263,7 @@ void Loan(Account& account, Handler& handler) {
                 break;
             case 3:
                 double payAmount;
+                std::cout << std::endl;
                 std::cout << "Enter amount to pay: $";
                 std::cin >> payAmount;
                 err = handler.loan.pay(loan, account, payAmount);
