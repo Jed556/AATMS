@@ -146,10 +146,10 @@ class Handler {
        public:
         HandAccount(const Handler& thisHandler);
         int create(struct Account& account, Name name, std::string pin);
-        int edit(Account& account, Name name, std::string pin);
-        int login(Account& account, std::string id, std::string pin);
-        int logout(Account& account);
-        int update(Account& account, std::string id);
+        int edit(struct Account& account);
+        int login(struct Account& account, std::string id, std::string pin);
+        int logout(struct Account& account);
+        int update(struct Account& account, std::string id);
         int remove(std::string id);
     };
 
@@ -159,9 +159,9 @@ class Handler {
 
        public:
         HandTransaction(const Handler& thisHandler);
-        int deposit(Account& account, double amount, std::string merchant);
-        int withdraw(Account& account, double amount, std::string merchant);
-        int transfer(Account& account, std::string to_id, double amount, std::string merchant);
+        int deposit(struct Account& account, double amount, std::string merchant);
+        int withdraw(struct Account& account, double amount, std::string merchant);
+        int transfer(struct Account& account, std::string to_id, double amount, std::string merchant);
     };
 
     class HandHistory {
@@ -180,13 +180,13 @@ class Handler {
 
        public:
         HandLoan(const Handler& thisHandler);
-        int create(struct Loan& loan, Account& account);
-        std::vector<std::vector<int>> calculateLoanOptions(struct Loan& loan, Account& account, double strikePenalty, double maxLoanFactor, double minSalary, int minMembershipDays, int maxOptions);
+        int create(struct Loan& loan, struct Account& account);
+        std::vector<std::vector<int>> calculateLoanOptions(struct Loan& loan, struct Account& account, double strikePenalty, double maxLoanFactor, double minSalary, int minMembershipDays, int maxOptions);
         std::vector<std::vector<double>> getOptions(double amount);
         double calculateTotalAmount(double amount, double interestRate, int months);
-        int pay(struct Loan& loan, Account& account, double amount);
+        int pay(struct Loan& loan, struct Account& account, double amount);
         int current(struct Loan& loans, std::string id);
-        int strike(struct Loan& loan, Account& account);
+        int strike(struct Loan& loan, struct Account& account);
     };
 
    public:
