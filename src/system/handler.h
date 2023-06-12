@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <ctime>
 #include <iostream>
 #include <limits>
@@ -16,6 +17,7 @@
 
 //-------------------- Utility --------------------//
 void pause(std::string message);
+int confirm(std::string message);
 void clear();
 
 //-------------------- Schema --------------------//
@@ -35,6 +37,8 @@ struct DateTime {
     std::string timezone;
     std::string toString(std::string which) const;
     DateTime fromString(std::string datetimezone);
+    time_t toTime() const;
+    double compare(DateTime time2) const;
 };
 
 /**
@@ -100,6 +104,7 @@ struct Account {
         double loan;
         double savings;
     } balance;
+    double salary;
     struct Date {
         DateTime created;
         struct Last {
@@ -114,7 +119,7 @@ struct Account {
  *
  */
 struct Loan {
-    std::string loan_id;
+    std::string reference;
     std::string id;
     std::string type;  // "create", "pay", "strike"
     double amount;
@@ -123,7 +128,7 @@ struct Loan {
     int months;
     int months_left;
     int strikes;
-    std::vector<History> history;
+    DateTime date;
 };
 
 //-------------------- Handler --------------------//
@@ -140,7 +145,7 @@ class Handler {
 
        public:
         HandAccount(const Handler& thisHandler);
-        int create(Account& account, Name name, std::string pin);
+        int create(struct Account& account, Name name, std::string pin);
         int edit(Account& account, Name name, std::string pin);
         int login(Account& account, std::string id, std::string pin);
         int logout(Account& account);
@@ -175,10 +180,13 @@ class Handler {
 
        public:
         HandLoan(const Handler& thisHandler);
-        int create(Loan& loan, std::string loan_id, std::string id, std::string type, double amount, int interest, int months);
-        int get(Loan& loan, std::string loan_id, std::string id, std::string type, std::string merchant, std::string date);
-        int pay(Loan& loan, double amount);
-        int strike(Loan& loan, History& history);
+        int create(struct Loan& loan, Account& account);
+        std::vector<std::vector<int>> calculateLoanOptions(struct Loan& loan, Account& account, double strikePenalty, double maxLoanFactor, double minSalary, int minMembershipDays, int maxOptions);
+        std::vector<std::vector<double>> getOptions(double amount);
+        double calculateTotalAmount(double amount, double interestRate, int months);
+        int pay(struct Loan& loan, Account& account, double amount);
+        int current(struct Loan& loans, std::string id);
+        int strike(struct Loan& loan, Account& account);
     };
 
    public:
