@@ -137,10 +137,13 @@ void Deposit(Account& account, Handler& handler) {
     double depositAmount;
     std::cout << "Enter amount to deposit: ";
     std::cin >> depositAmount;
-    std::cout << "Deposit amount: $" << depositAmount << std::endl;  // Placeholder
     std::cout << std::endl;
 
-    handler.transact.deposit(account, depositAmount, "AATMS");
+    if (!handler.transact.deposit(account, depositAmount, "AATMS")) {
+        std::cout << "Deposited $" << depositAmount << std::endl;
+    } else {
+        std::cout << "Deposit failed! Invalid amount." << std::endl;
+    }
     pause("Press Enter to go back...");
 }
 
@@ -148,10 +151,15 @@ void Withdraw(Account& account, Handler& handler) {
     double withdrawAmount;
     std::cout << "Enter amount to withdraw: ";
     std::cin >> withdrawAmount;
-    std::cout << "Withdrawal amount: $" << withdrawAmount << std::endl;  // Placeholder
     std::cout << std::endl;
 
-    handler.transact.withdraw(account, withdrawAmount, "AATMS");
+    if (!handler.transact.withdraw(account, withdrawAmount, "AATMS")) {
+        std::cout << "Withdrawn $" << withdrawAmount << std::endl;
+    } else if (account.balance.savings < withdrawAmount) {
+        std::cout << "Withdraw failed! Insufficient funds." << std::endl;
+    } else {
+        std::cout << "Withdraw failed! Invalid amount." << std::endl;
+    }
     pause("Press Enter to go back...");
 }
 
@@ -165,10 +173,29 @@ void Transfer(Account& account, Handler& handler, Database& database) {
     std::cout << "Transfer amount: $" << transferAmount << " to user ID: " << transferUserId << std::endl;  // Placeholder
     std::cout << std::endl;
 
-    handler.transact.transfer(account, transferUserId, transferAmount, "AATMS");
-    std::string check = "id = '" + transferUserId + "'";
-    std::string transferNameUser = database.select("accounts", {"id", "name"}, check)[0].columnValues[1];
-    std::cout << "Successfully transferred $" << transferAmount << " to user ID: " << transferNameUser << std::endl;
+    std::string transferNameUser;
+    int err = handler.transact.transfer(account, transferUserId, transferAmount, "AATMS");
+    if (!err) {
+        std::string check = "id = '" + transferUserId + "'";
+        transferNameUser = database.select("accounts", {"id", "user"}, check)[0].columnValues[1];
+    }
+    switch (err) {
+        case 0:
+            std::cout << "Successfully transferred $" << transferAmount << " to " << transferNameUser << std::endl;
+            break;
+        case 1:
+            std::cout << "Transfer failed! Invalid amount." << std::endl;
+            break;
+        case 2:
+            std::cout << "Transfer failed! Insufficient funds." << std::endl;
+            break;
+        case 3:
+            std::cout << "Transfer failed! Can't transfer to the same account." << std::endl;
+            break;
+        case 4:
+            std::cout << "Transfer failed! User doesn't exist." << std::endl;
+            break;
+    }
     pause("Press Enter to go back...");
 }
 
@@ -179,7 +206,7 @@ void Loan(Account& account, Handler& handler) {
         clear();
         std::cout << "----- Loan Options -----   ----- " << account.name.user
                   << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
-        std::cout << "\nOPTIONS:   [1] Refresh   [2] Create   [3] Pay   [4] List   [6] Back";
+        std::cout << "\nOPTIONS:   [1] Refresh   [2] Create   [3] Pay   [4] Back";
 
         handler.loan.current(loan, account.id);
         if (loan.payed < loan.amount) {
@@ -217,6 +244,7 @@ void Loan(Account& account, Handler& handler) {
                         std::cout << "Total Amount: $" << handler.loan.getOptions(loan.amount)[i][0] << std::endl;
                         std::cout << "Months: " << handler.loan.getOptions(loan.amount)[i][1] << " months" << std::endl;
                         std::cout << "Interest Rate: " << handler.loan.getOptions(loan.amount)[i][2] << "%" << std::endl;
+                        std::cout << std::endl;
                     }
 
                     std::cout << "[" << numOptions + 1 << "] Cancel" << std::endl;
@@ -269,18 +297,133 @@ void Loan(Account& account, Handler& handler) {
                 err = handler.loan.pay(loan, account, payAmount);
                 if (!err)
                     std::cout << "Total amount payed: $" << loan.payed << std::endl;
+                else if (err == 1)
+                    std::cout << "Amount is greater than loan amount" << std::endl;
+                else if (err == 2)
+                    std::cout << "You don't have enough money to pay that amount." << std::endl;
+                else if (err == 3)
+                    std::cout << "Amount is greater than remaining loan amount." << std::endl;
                 std::cout << std::endl;
                 pause("Press Enter to go back...");
                 break;
+            // case 4:
+            //     std::cout << "Loan History: Work in Progress..." << std::endl;
+            //     std::cout << std::endl;
+            //     pause("Press Enter to go back...");
+            //     break;
             case 4:
-                std::cout << "Loan History: Work in Progress..." << std::endl;
-                std::cout << std::endl;
-                pause("Press Enter to go back...");
-                break;
-            case 6:
                 return;
         }
     }
+}
+
+int Personal(Account& account, Handler& handler, Database& database) {
+    struct Loan loan;
+    handler.loan.current(loan, account.id);
+    std::string check = "id = '" + account.id + "'";
+    int hasLoan = database.select("loans", {"*"}, check).size();
+    int choice = 0;
+    int choice2 = 0;
+    int deleted = 0;
+    while (!deleted) {
+        clear();
+        handler.account.update(account, account.id);
+        std::cout << "----- Account Options -----   ----- " << account.name.user
+                  << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+        std::cout << "\nOPTIONS:   [1] Refresh   [2] Edit   [3] Delete   [4] Back";
+
+        std::cout << "\n";
+        std::cout << "\nAccount Details -------" << std::endl;
+        std::cout << "ID: " << account.id << std::endl;
+        std::cout << "First Name: " << account.name.first << std::endl;
+        std::cout << "Middle Name: " << account.name.middle << std::endl;
+        std::cout << "Last Name: " << account.name.last << std::endl;
+
+        if (hasLoan) {
+            std::cout << "\nLoan Details ----------" << std::endl;
+            std::cout << "Amount: $" << loan.amount << std::endl;
+            std::cout << "Payed: $" << loan.payed << std::endl;
+            std::cout << "Monthly Payment: $" << loan.amount / loan.months << std::endl;
+            std::cout << "Interest: " << loan.interest << "%" << std::endl;
+            std::cout << "Months: " << loan.months << std::endl;
+            std::cout << "Months Left: " << loan.months_left << std::endl;
+            std::cout << "Created: " << loan.date.toString("full") << std::endl;
+        }
+
+        std::cout << "\nSecurity Details ------" << std::endl;
+        std::cout << "Expiration: " << (account.expiry.month < 10 ? "0" : "") << account.expiry.month << "/" << account.expiry.year << std::endl;
+        std::cout << "CVC: " << account.cvc << std::endl;
+        std::cout << "PIN: " << account.pin << std::endl;
+
+        std::cout << std::endl;
+        std::cout << "\n>> ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                break;
+            case 2:
+                do {
+                    clear();
+                    std::cout << "----- Editing Account -----   ----- " << account.name.user
+                              << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+                    std::cout << "\nOPTIONS:   [1] First   [2] Middle   [3] Last   [4] Username   [5] PIN   [6] Save   [7] Back";
+                    std::cout << std::endl;
+                    std::cout << "ID: " << account.id << std::endl;
+                    std::cout << "Username: " << account.name.user << std::endl;
+                    std::cout << "First Name: " << account.name.first << std::endl;
+                    std::cout << "Middle Name: " << account.name.middle << std::endl;
+                    std::cout << "Last Name: " << account.name.last << std::endl;
+                    std::cout << "PIN: " << account.pin << std::endl;
+
+                    std::cout << "\nSelect an option to edit";
+                    std::cout << "\n>> ";
+                    std::cin >> choice2;
+                    std::cout << std::endl;
+
+                    switch (choice2) {
+                        case 1:
+                            std::cout << "Enter new first name: ";
+                            std::cin >> account.name.first;
+                            break;
+                        case 2:
+                            std::cout << "Enter new middle name: ";
+                            std::cin >> account.name.middle;
+                            break;
+                        case 3:
+                            std::cout << "Enter new last name: ";
+                            std::cin >> account.name.last;
+                            break;
+                        case 4:
+                            std::cout << "Enter new username: ";
+                            std::cin >> account.name.user;
+                            break;
+                        case 5:
+                            std::cout << "Enter new PIN: ";
+                            std::cin >> account.pin;
+                            break;
+                        case 6:
+                            handler.account.edit(account);
+                            pause("Account updated! Press Enter to continue...");
+                            break;
+                        case 7:
+                            handler.account.update(account, account.id);
+                            break;
+                        default:
+                            pause("Invalid option! Press Enter to try again...");
+                            break;
+                    }
+                } while (choice2 != 7);
+                break;
+            case 3:
+                deleted = 1;
+                handler.account.remove(account.id);
+                break;
+            case 4:
+                return deleted;
+        }
+    }
+    return deleted;
 }
 
 void Logout(Account& account, Handler& handler) {
@@ -311,17 +454,18 @@ int loop(Handler& handler, Account& account, Database& database) {
         std::cin >> choice;
         std::cout << std::endl;
 
+        int deleted = 0;
         switch (choice) {
             case 1: {
                 int err = Login(account, handler);
 
                 if (!err) {
                     int accountOption = -1;
-                    while (accountOption != 6) {
+                    while (accountOption != 7 && !deleted) {
                         clear();
                         std::cout << "----- Account Options -----   ----- " << account.name.user
                                   << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
-                        std::cout << "\nOPTIONS:   [1] Refresh   [2] Deposit   [3] Withdraw   [4] Transfer   [5] Loan   [6] Logout";
+                        std::cout << "\nOPTIONS:   [1] Refresh   [2] Deposit   [3] Withdraw   [4] Transfer   [5] Loan   [6] Account   [7] Logout";
                         std::cout << "\n>> ";
                         std::cin >> accountOption;
 
@@ -343,11 +487,10 @@ int loop(Handler& handler, Account& account, Database& database) {
                                 Loan(account, handler);
                                 break;
                             case 6:
-                                Logout(account, handler);
-                                choice = 0;
+                                deleted = Personal(account, handler, database);
                                 break;
                             case 7:
-                                Delete(account, handler);
+                                Logout(account, handler);
                                 choice = 0;
                                 break;
                             default:
