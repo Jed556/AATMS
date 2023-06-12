@@ -32,6 +32,6 @@ DateTime Generator::getDate() {
     int millisecond = tv.tv_usec / 1000;
 
     DateTime date = {month, day, year, hour, minute, second, millisecond, timezone};
-    std::cout << date.toString("full") << std::endl;
+    // std::cout << date.toString("full") << std::endl;
     return date;
 }
