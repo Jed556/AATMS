@@ -48,3 +48,7 @@ VALUES (
     );
 SELECT *
 FROM accounts;
+SELECT *
+FROM loans;
+SELECT *
+FROM history;
