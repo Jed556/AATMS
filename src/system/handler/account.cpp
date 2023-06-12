@@ -76,7 +76,7 @@ int Handler::HandAccount::logout(Account& account) {
  * @param id Account ID to update from
  * @return int
  */
-int Handler::HandAccount::update(Account& account, std::string id) {
+int Handler::HandAccount::update(struct Account& account, std::string id) {
     DateTime convert;
     std::string check = "id = " + id;
     std::vector<std::string> data = handler.database.select("accounts", {"id", "first", "middle", "last", "user", "cvc", "pin", "month", "year", "loan", "savings", "created"}, check)[0].columnValues;
