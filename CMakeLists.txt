@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 set(CMAKE_TOOLCHAIN_FILE "../../Managers/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(AATMS
-    VERSION 1.1.1
+    VERSION 1.2.1
     DESCRIPTION "Advanced Automated Teller Machine System"
     HOMEPAGE_URL "https://github.com/Jed556/AATMS"
     LANGUAGES CXX

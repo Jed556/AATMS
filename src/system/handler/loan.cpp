@@ -23,7 +23,7 @@ int Handler::HandLoan::create(struct Loan& loan, Account& account) {
 
     check = "reference = '" + loan.reference + "' AND type = '" + loan.type + "' AND id = '" + account.id + "'";
     if (handler.database.select("loans", {"reference", "id", "type"}, check).size() > 0) {
-        std::cerr << "[ERROR] Loan already exists" << std::endl;
+        // std::cerr << "[ERROR] Loan already exists" << std::endl;
         return 1;
     }
 
@@ -76,37 +76,42 @@ double Handler::HandLoan::calculateTotalAmount(double amount, double interestRat
 int Handler::HandLoan::current(Loan& loan, std::string id) {
     DateTime convert;
     std::string check = "id = '" + id + "'";
-    std::vector<std::string> data = handler.database.select("loans", {"*"}, check)[0].columnValues;
+    std::vector<RowData> result = handler.database.select("loans", {"*"}, check);
+    int size = result.size();
 
-    loan.reference = data[0];
-    loan.id = data[1];
-    loan.type = data[2];
-    loan.amount = std::stod(data[3]);
-    loan.payed = std::stod(data[4]);
-    loan.interest = std::stod(data[5]);
-    loan.months = std::stoi(data[6]);
-    loan.months_left = std::stoi(data[7]);
-    loan.strikes = std::stoi(data[8]);
-    loan.date = convert.fromString(data[9]);
+    if (size > 0) {
+        std::vector<std::string> data = result[0].columnValues;
+        loan.reference = data[0];
+        loan.id = data[1];
+        loan.type = data[2];
+        loan.amount = std::stod(data[3]);
+        loan.payed = std::stod(data[4]);
+        loan.interest = std::stod(data[5]);
+        loan.months = std::stoi(data[6]);
+        loan.months_left = std::stoi(data[7]);
+        loan.strikes = std::stoi(data[8]);
+        loan.date = convert.fromString(data[9]);
+        return size;
+    }
 
-    return 0;
+    return size;
 }
 
 int Handler::HandLoan::pay(struct Loan& loan, Account& account, double amount) {
     current(loan, account.id);
 
     if (amount > loan.amount) {
-        std::cerr << "[ERROR] Amount is greater than loan amount" << std::endl;
+        // std::cerr << "[ERROR] Amount is greater than loan amount" << std::endl;
         return 1;
     }
 
     if (amount > account.balance.savings) {
-        std::cerr << "[ERROR] Amount is greater than account balance" << std::endl;
+        // std::cerr << "[ERROR] Amount is greater than account balance" << std::endl;
         return 2;
     }
 
     if (amount > loan.amount - loan.payed) {
-        std::cerr << "[ERROR] Amount is greater than remaining loan amount" << std::endl;
+        // std::cerr << "[ERROR] Amount is greater than remaining loan amount" << std::endl;
         return 3;
     }
 
