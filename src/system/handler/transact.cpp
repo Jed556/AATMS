@@ -87,7 +87,7 @@ int Handler::HandTransaction::transfer(Account& account, std::string to_id, doub
     }
 
     std::string check = "id = '" + to_id + "'";
-    if (handler.database.select("loans", {"reference", "id", "type"}, check).size() <= 0) {
+    if (handler.database.select("accounts", {"id"}, check).size() <= 0) {
         // std::cerr << "[ERROR] Recipient account does not exist" << std::endl;
         return 4;
     }
