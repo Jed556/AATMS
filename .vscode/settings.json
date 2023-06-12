@@ -110,6 +110,12 @@
       "driver": "SQLite",
       "database": "${workspaceFolder:AATMS}/build/AATMS-0.0.2-win64/database/database.db",
       "name": "testing"
+    },
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:AATMS}/build/AATMS-1.2.0-win64/database/database.db",
+      "name": "testing 2"
     }
   ],
 }

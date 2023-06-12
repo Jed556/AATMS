@@ -10,7 +10,7 @@ AATMS
 </h1>
 </div>
 
-Advanced Automated Teller Machine System (AATMS) is a GUI + System program that simulates an ATM machine. On top of the basic functionalities of an ATM machine, AATMS also provides additional features such as deposit interest, loan system, and account management.
+Advanced Automated Teller Machine System (AATMS) is a System program that simulates an ATM machine. On top of the basic functionalities of an ATM machine, AATMS also provides additional features such as deposit interest, loan system, and account management. This only serves as an interface between the ATM machine and the user. And do not have access to the input devices of the ATM machine such as the card reader and the keypad.
 
 ## Table of Contents
 - [Features](#features)
