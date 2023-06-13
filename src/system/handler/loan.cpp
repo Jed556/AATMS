@@ -91,7 +91,6 @@ int Handler::HandLoan::current(Loan& loan, std::string id) {
         loan.months_left = std::stoi(data[7]);
         loan.strikes = std::stoi(data[8]);
         loan.date = convert.fromString(data[9]);
-        return size;
     }
 
     return size;

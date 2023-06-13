@@ -208,8 +208,8 @@ void Loan(Account& account, Handler& handler) {
                   << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
         std::cout << "\nOPTIONS:   [1] Refresh   [2] Create   [3] Pay   [4] Back";
 
-        handler.loan.current(loan, account.id);
-        if (loan.payed < loan.amount) {
+        int hasLoan = handler.loan.current(loan, account.id);
+        if (loan.payed < loan.amount && hasLoan != 0) {
             std::cout << "\n\n";
             std::cout << "Active Loan:   $" << loan.payed << " / $" << loan.amount << " at " << loan.interest << "%"
                       << " for " << loan.months << " months";
@@ -227,7 +227,8 @@ void Loan(Account& account, Handler& handler) {
                 handler.loan.current(loan, account.id);
                 break;
             case 2:
-                if (loan.payed < loan.amount) {
+                hasLoan = handler.loan.current(loan, account.id);
+                if (loan.payed < loan.amount && hasLoan != 0) {
                     std::cout << "You already have an active loan. Please pay it off before creating a new one." << std::endl;
                     pause("Press Enter to go back...");
                     break;
@@ -257,6 +258,7 @@ void Loan(Account& account, Handler& handler) {
                     }
                     if (plan == numOptions + 1) {
                         cancel = true;
+                        loan = {};
                     }
 
                     break;
