@@ -125,8 +125,8 @@ int Login(Account& account, Handler& handler) {
         // std::cout << "CVC: " << account.cvc << std::endl;
         // std::cout << "PIN: " << account.pin << std::endl;
         // std::cout << "Expiry: " << account.expiry.month << "/" << account.expiry.year << std::endl;
-        std::cout << "Loan Balance: " << account.balance.loan << std::endl;
-        std::cout << "Savings Balance: " << account.balance.savings << std::endl;
+        // std::cout << "Loan Balance: " << account.balance.loan << std::endl;
+        std::cout << "Savings Balance: " << std::fixed << std::setprecision(2) << account.balance.savings << std::endl;
         std::cout << "Created: " << account.date.created.toString("full") << std::endl;
         pause("\nPress enter to continue...");
     }
@@ -205,7 +205,7 @@ void Loan(Account& account, Handler& handler) {
     while (true) {
         clear();
         std::cout << "----- Loan Options -----   ----- " << account.name.user
-                  << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+                  << " -----   ----- Balance: $" << std::fixed << std::setprecision(2) << account.balance.savings << " -----" << std::endl;
         std::cout << "\nOPTIONS:   [1] Refresh   [2] Create   [3] Pay   [4] Back";
 
         int hasLoan = handler.loan.current(loan, account.id);
@@ -242,7 +242,7 @@ void Loan(Account& account, Handler& handler) {
                     int numOptions = handler.loan.getOptions(loan.amount).size();
                     for (int i = 0; i < numOptions; i++) {
                         std::cout << "Option [" << i + 1 << "]: " << std::endl;
-                        std::cout << "Total Amount: $" << handler.loan.getOptions(loan.amount)[i][0] << std::endl;
+                        std::cout << "Total Amount: $" << std::fixed << std::setprecision(2) << handler.loan.getOptions(loan.amount)[i][0] << std::endl;
                         std::cout << "Months: " << handler.loan.getOptions(loan.amount)[i][1] << " months" << std::endl;
                         std::cout << "Interest Rate: " << handler.loan.getOptions(loan.amount)[i][2] << "%" << std::endl;
                         std::cout << std::endl;
@@ -276,8 +276,8 @@ void Loan(Account& account, Handler& handler) {
                 loan.interest = handler.loan.getOptions(loan.amount)[plan][2];
 
                 std::cout << "Details -------" << std::endl;
-                std::cout << "Total Amount: $" << loan.amount << std::endl;
-                std::cout << "Monthly Payment: $" << loan.amount / loan.months << std::endl;
+                std::cout << "Total Amount: $" << std::fixed << std::setprecision(2) << loan.amount << std::endl;
+                std::cout << "Monthly Payment: $" << std::fixed << std::setprecision(2) << loan.amount / loan.months << std::endl;
                 std::cout << "Months: " << loan.months << " months" << std::endl;
                 std::cout << "Interest rate: " << loan.interest << "%" << std::endl;
                 std::cout << std::endl;
@@ -331,7 +331,7 @@ int Personal(Account& account, Handler& handler, Database& database) {
         clear();
         handler.account.update(account, account.id);
         std::cout << "----- Account Options -----   ----- " << account.name.user
-                  << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+                  << " -----   ----- Balance: $" << std::fixed << std::setprecision(2) << account.balance.savings << " -----" << std::endl;
         std::cout << "\nOPTIONS:   [1] Refresh   [2] Edit   [3] Delete   [4] Back";
 
         std::cout << "\n";
@@ -343,9 +343,9 @@ int Personal(Account& account, Handler& handler, Database& database) {
 
         if (hasLoan) {
             std::cout << "\nLoan Details ----------" << std::endl;
-            std::cout << "Amount: $" << loan.amount << std::endl;
-            std::cout << "Payed: $" << loan.payed << std::endl;
-            std::cout << "Monthly Payment: $" << loan.amount / loan.months << std::endl;
+            std::cout << "Amount: $" << std::fixed << std::setprecision(2) << loan.amount << std::endl;
+            std::cout << "Payed: $" << std::fixed << std::setprecision(2) << loan.payed << std::endl;
+            std::cout << "Monthly Payment: $" << std::fixed << std::setprecision(2) << loan.amount / loan.months << std::endl;
             std::cout << "Interest: " << loan.interest << "%" << std::endl;
             std::cout << "Months: " << loan.months << std::endl;
             std::cout << "Months Left: " << loan.months_left << std::endl;
@@ -368,7 +368,7 @@ int Personal(Account& account, Handler& handler, Database& database) {
                 do {
                     clear();
                     std::cout << "----- Editing Account -----   ----- " << account.name.user
-                              << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+                              << " -----   ----- Balance: $" << std::fixed << std::setprecision(2) << account.balance.savings << " -----" << std::endl;
                     std::cout << "\nOPTIONS:   [1] First   [2] Middle   [3] Last   [4] Username   [5] PIN   [6] Save   [7] Back";
                     std::cout << std::endl;
                     std::cout << "ID: " << account.id << std::endl;
@@ -466,7 +466,7 @@ int loop(Handler& handler, Account& account, Database& database) {
                     while (accountOption != 7 && !deleted) {
                         clear();
                         std::cout << "----- Account Options -----   ----- " << account.name.user
-                                  << " -----   ----- Balance: $" << account.balance.savings << " -----" << std::endl;
+                                  << " -----   ----- Balance: $" << std::fixed << std::setprecision(2) << account.balance.savings << " -----" << std::endl;
                         std::cout << "\nOPTIONS:   [1] Refresh   [2] Deposit   [3] Withdraw   [4] Transfer   [5] Loan   [6] Account   [7] Logout";
                         std::cout << "\n>> ";
                         std::cin >> accountOption;
