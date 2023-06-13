@@ -78,9 +78,10 @@ int Handler::HandLoan::current(Loan& loan, std::string id) {
     std::string check = "id = '" + id + "'";
     std::vector<RowData> result = handler.database.select("loans", {"*"}, check);
     int size = result.size();
+    int current = size - 1;
 
     if (size > 0) {
-        std::vector<std::string> data = result[0].columnValues;
+        std::vector<std::string> data = result[current].columnValues;
         loan.reference = data[0];
         loan.id = data[1];
         loan.type = data[2];
