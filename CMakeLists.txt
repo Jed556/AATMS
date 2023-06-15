@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 set(CMAKE_TOOLCHAIN_FILE "../../Managers/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(AATMS
-    VERSION 1.3.7
+    VERSION 1.3.8
     DESCRIPTION "Advanced Automated Teller Machine System"
     HOMEPAGE_URL "https://github.com/Jed556/AATMS"
     LANGUAGES CXX
@@ -76,6 +76,9 @@ install(FILES
     $<TARGET_FILE:SDL2::SDL2>
     $<TARGET_FILE:SDL2_ttf::SDL2_ttf>
     $<TARGET_FILE:SDL2_image::SDL2_image>
+    src/bin/libstdc++-6.dll
+    src/bin/libgcc_s_seh-1.dll
+    src/bin/freetype.dll
     DESTINATION ${FOLDER_NAME}/bin
 )
 
